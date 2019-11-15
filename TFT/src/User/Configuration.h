@@ -36,9 +36,9 @@
 #define FAN_NUM      1    // set in 1~6
 
 //                       PLA      PETG       ABS     "CUSTOM1" "CUSTOM2"
-#define PREHEAT_BED      {55,      85,       100,       55,       55}
-#define PREHEAT_HOTEND   {205,     230,      230,       200,      200}
-//#define PREHEAT_TEXT     {"PLA",  "PETG",   "ABS",     "T2:",    "T3:"}
+#define PREHEAT_BED      {55,      70,       100,       55,       55}
+#define PREHEAT_HOTEND   {205,     220,      230,       200,      200}
+#define PREHEAT_TEXT     {"PLA",  "PETG",   "ABS",     "T2:",    "T3:"}
 
 #define HEAT_MAX_TEMP    {150,    275,       275,       275,       275,       275,       275}    //max temperature can be set
 #define HEAT_SIGN_ID     {"B:",   "T0:",     "T1:",     "T2:",     "T3:",     "T4:",     "T5:"}
@@ -62,12 +62,12 @@
 #define EXTRUDE_FAST_SPEED      1200
 
 // Size of machine
-#define X_MIN_POS 0
-#define Y_MIN_POS 0
-#define Z_MIN_POS 0
-#define X_MAX_POS 235
-#define Y_MAX_POS 235
-#define Z_MAX_POS 250
+#define X_MIN_POS -48
+#define Y_MIN_POS -46.5
+#define Z_MIN_POS -50
+#define X_MAX_POS 506
+#define Y_MAX_POS 503
+#define Z_MAX_POS 850
 
 // Specify a pause position as { X, Y, Z_raise }
 #define NOZZLE_PAUSE_RETRACT_LENGTH 15   // (mm)
