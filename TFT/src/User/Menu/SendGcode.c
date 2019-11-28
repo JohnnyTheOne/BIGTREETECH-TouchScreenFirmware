@@ -38,9 +38,9 @@ const GUI_RECT rect_of_Gkey[]={
   {5*GKEY_WIDTH, 3*GKEY_HEIGHT+TITLE_END_Y, 6*GKEY_WIDTH, 4*GKEY_HEIGHT+TITLE_END_Y},
   
   // Back
-  {0*GKEY_WIDTH+10, 0*GKEY_HEIGHT+10, 1*GKEY_WIDTH-10, TITLE_END_Y-15},
+  {0*GKEY_WIDTH+5, 0*GKEY_HEIGHT+5,  1*GKEY_WIDTH-5, TITLE_END_Y-5},
   // Send
-  {5*GKEY_WIDTH+10, 0*GKEY_HEIGHT+10, 6*GKEY_WIDTH-10, TITLE_END_Y-15},
+  {5*GKEY_WIDTH+5, 0*GKEY_HEIGHT+5,  6*GKEY_WIDTH-5, TITLE_END_Y-5},
 };
 
 const char * const softKeyValue[][26] = {
@@ -217,7 +217,7 @@ void menuTerminal(void)
   GUI_SetColor(BLACK);
   GUI_SetBkColor(GRAY);
   GUI_ClearRect(CURSOR_START_X, CURSOR_START_Y, CURSOR_END_X, CURSOR_END_Y);
-  TSC_ReDrawIcon = NULL; // Close icon redraw callback function
+  TSC_ReDrawIcon = NULL; // Disable icon redraw callback function
 
   while(infoMenu.menu[infoMenu.cur] == menuTerminal)
   {
