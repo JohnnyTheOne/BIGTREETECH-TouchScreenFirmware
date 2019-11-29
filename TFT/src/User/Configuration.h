@@ -16,13 +16,13 @@
 // Marlin Mode Background & Font Color Options
 // Current color options from lcd.h: BLACK, BLUE, BROWN, BRRED, CYAN, GBLUE, GRAY, GREEN, MAGENTA, RED, WHITE, YELLOW
 #define ST7920_BKCOLOR BLACK
-#define ST7920_FNCOLOR GREEN
+#define ST7920_FNCOLOR WHITE
 
 // Text displayed at the top of the LCD in Marlin Mode.
 //#define ST7920_BANNER_TEXT "LCD12864 Simulator"
 
 // Run Marlin Mode fullscreen. Not recommended for TFT24.
-//#define ST7920_FULLSCREEN
+#define ST7920_FULLSCREEN
 
 //===========================================================================
 //============================ TFT Mode Settings ============================
@@ -64,8 +64,8 @@
 #define EXTRUDE_FAST_SPEED      1200
 
 // Size of machine
-#define X_MIN_POS -48
-#define Y_MIN_POS -46.5
+#define X_MIN_POS -46
+#define Y_MIN_POS -78
 #define Z_MIN_POS -50
 #define X_MAX_POS 506
 #define Y_MAX_POS 503
@@ -163,19 +163,19 @@
  * The format of the custom icon is as follows
  * Bit depth: 24 / 32 bit, Pixel size: 95*95(for TFT35), 70*70(for TFT28/TFT24)
  */
-#define CUSTOM_0_LABEL "Restore EEPROM"
-#define CUSTOM_0_GCODE "M501\n"
-//#define CUSTOM_1_LABEL "Custom2"
-//#define CUSTOM_1_GCODE "M105\n"
-//#define CUSTOM_2_LABEL "Custom2"
-//#define CUSTOM_2_GCODE "M105\n"
-//#define CUSTOM_3_LABEL "Custom3"
-//#define CUSTOM_3_GCODE "M105\n"
-//#define CUSTOM_4_LABEL "Custom4"
-//#define CUSTOM_4_GCODE "M105\n"
-//#define CUSTOM_5_LABEL "Custom5"
-//#define CUSTOM_5_GCODE "M105\n"
-//#define CUSTOM_6_LABEL "Custom6"
-//#define CUSTOM_6_GCODE "M105\n"
+#define CUSTOM_0_LABEL "M500"
+#define CUSTOM_0_GCODE "M500\n"
+#define CUSTOM_1_LABEL "M502"
+#define CUSTOM_1_GCODE "M502\n"
+#define CUSTOM_2_LABEL "M501"
+#define CUSTOM_2_GCODE "M501\n"
+#define CUSTOM_3_LABEL "M122"
+#define CUSTOM_3_GCODE "M122\n"
+#define CUSTOM_4_LABEL "Custom4"
+#define CUSTOM_4_GCODE "M105\n"
+#define CUSTOM_5_LABEL "Custom5"
+#define CUSTOM_5_GCODE "M105\n"
+#define CUSTOM_6_LABEL "Custom6"
+#define CUSTOM_6_GCODE "M105\n"
 
 #endif
