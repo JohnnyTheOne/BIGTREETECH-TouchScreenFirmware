@@ -318,7 +318,7 @@ extern GUI_RECT titleRect;
 
 void printingDrawPage(void)
 {
-  menuDrawPage(&printingItems,false);
+  menuDrawPage(&printingItems);
   //	Scroll_CreatePara(&titleScroll, infoFile.title,&titleRect);  //
   // printed time
   GUI_DispString(progressRect.x0, TIME_Y, (u8* )"T:");
@@ -480,7 +480,7 @@ void abortPrinting(void)
   heatClearIsWaiting();
   
   mustStoreCmd("G0 Z%d F3000\n", limitValue(0, (int)coordinateGetAxisTarget(Z_AXIS) + 10, Z_MAX_POS));
-  mustStoreCmd("G28 X0 Y0\n");
+  mustStoreCmd(CANCEL_PRINT_GCODE);
 
   endPrinting();
   exitPrinting();
