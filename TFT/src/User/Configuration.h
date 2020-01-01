@@ -22,7 +22,7 @@
 //#define ST7920_BANNER_TEXT "LCD12864 Simulator"
 
 // Run Marlin Mode fullscreen. Not recommended for TFT24.
-#define ST7920_FULLSCREEN
+//#define ST7920_FULLSCREEN
 
 //===========================================================================
 //============================ TFT Mode Settings ============================
@@ -67,7 +67,7 @@
 // Size of machine
 #define X_MIN_POS -46
 #define Y_MIN_POS -78
-#define Z_MIN_POS -50
+#define Z_MIN_POS   0
 #define X_MAX_POS 506
 #define Y_MAX_POS 503
 #define Z_MAX_POS 850
