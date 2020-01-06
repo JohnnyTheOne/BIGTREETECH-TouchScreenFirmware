@@ -22,7 +22,7 @@
 //#define ST7920_BANNER_TEXT "LCD12864 Simulator"
 
 // Run Marlin Mode fullscreen. Not recommended for TFT24.
-//#define ST7920_FULLSCREEN
+#define ST7920_FULLSCREEN
 
 //===========================================================================
 //============================ TFT Mode Settings ============================
@@ -95,7 +95,7 @@
 #ifdef AUTO_BED_LEVELING
   // Enable this will send "M500" after "G29" to store leveling value
   // and send "M420 S1" to enable leveling state after startup
-  #define AUTO_SAVE_LOAD_LEVELING_VALUE
+  //#define AUTO_SAVE_LOAD_LEVELING_VALUE
 #endif
 
 // Move to four corner points to Leveling manually (Point 1, Point 2, Point 3, Point 4)
@@ -137,7 +137,7 @@
 
 // Enable Unified Move Menu
 // Move, Home, Extrude, ABL at one Place and bring Gcode Menu on Home Menu
-//#define UNIFIED_MENU
+#define UNIFIED_MENU
 
 /**
  * Enable list mode in Files menu and settings menu
