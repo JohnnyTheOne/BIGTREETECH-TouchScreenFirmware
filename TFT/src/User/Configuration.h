@@ -193,20 +193,20 @@
  * The format of the custom icon is as follows
  * Bit depth: 24 / 32 bit, Pixel size: 95*95(for TFT35), 70*70(for TFT28/TFT24)
  */
-#define CUSTOM_0_LABEL "M500"
-#define CUSTOM_0_GCODE "M500\n"
-#define CUSTOM_1_LABEL "M502"
-#define CUSTOM_1_GCODE "M502\n"
-#define CUSTOM_2_LABEL "M501"
-#define CUSTOM_2_GCODE "M501\n"
-#define CUSTOM_3_LABEL "M122"
-#define CUSTOM_3_GCODE "M122\n"
-#define CUSTOM_4_LABEL "Custom4"
-#define CUSTOM_4_GCODE "M105\n"
-#define CUSTOM_5_LABEL "Custom5"
-#define CUSTOM_5_GCODE "M105\n"
-#define CUSTOM_6_LABEL "Custom6"
-#define CUSTOM_6_GCODE "M105\n"
+#define CUSTOM_0_LABEL "Restore EEPROM"
+#define CUSTOM_0_GCODE "M501\n"
+#define CUSTOM_1_LABEL "Disable Steppers"
+#define CUSTOM_1_GCODE "M84\n"
+#define CUSTOM_2_LABEL "init SD Card"
+#define CUSTOM_2_GCODE "M21\n"
+#define CUSTOM_3_LABEL "Release Sd Card"
+#define CUSTOM_3_GCODE "M22\n"
+//#define CUSTOM_4_LABEL "Custom4"
+//#define CUSTOM_4_GCODE "M105\n"
+//#define CUSTOM_5_LABEL "Custom5"
+//#define CUSTOM_5_GCODE "M105\n"
+//#define CUSTOM_6_LABEL "Custom6"
+//#define CUSTOM_6_GCODE "M105\n"
 
 /*
 custom gcode below are compatible only if MENU_LIST_MODE is active
