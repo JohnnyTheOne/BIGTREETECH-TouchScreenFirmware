@@ -248,7 +248,6 @@ void menuCustom(void)
           customItems.items[i].icon = ICONCHAR_BACKGROUND;
           customItems.items[i].titlelabel.index = LABEL_BACKGROUND;
         }
-        menuDrawListItem(&customItems.items[i],i);
      }
       // set page up down button according to page count and current page
       if (CKEY_COUNT <= LISTITEM_PER_PAGE)
@@ -272,8 +271,8 @@ void menuCustom(void)
           customItems.items[6].icon = ICONCHAR_PAGEDOWN;
         }
       }
-      menuDrawListItem(&customItems.items[5],5);
-      menuDrawListItem(&customItems.items[6],6);
+         // menuDrawListItem(&customItems.items[5],5);
+          //menuDrawListItem(&customItems.items[6],6);
     }
 
 void menuCustom(void)
@@ -296,7 +295,7 @@ void menuCustom(void)
           if(GC_PAGE_COUNT > 1){
             if (gc_cur_page > 0){
               gc_cur_page--;
-              loaditemsCustomGcode();
+              menuRefreshListPage();
             }
           }
           break;
@@ -304,7 +303,7 @@ void menuCustom(void)
           if(GC_PAGE_COUNT > 1){
             if (gc_cur_page < GC_PAGE_COUNT-1){
               gc_cur_page++;
-              loaditemsCustomGcode();
+              menuRefreshListPage();
             }
           }
           break;
@@ -324,11 +323,11 @@ MENUITEMS RGBItems = {
 // title
 LABEL_RGB_SETTINGS,
 // icon                       label
- {{ICON_RGB_RED,              LABEL_RGB_RED},
-  {ICON_RGB_GREEN,            LABEL_RGB_GREEN},
-  {ICON_RGB_BLUE,             LABEL_RGB_BLUE},
-  {ICON_RGB_WHITE,            LABEL_RGB_WHITE},
-  {ICON_RGB_OFF,              LABEL_RGB_OFF},
+ {{ICON_RGB_RED,              LABEL_RED},
+  {ICON_RGB_GREEN,            LABEL_GREEN},
+  {ICON_RGB_BLUE,             LABEL_BLUE},
+  {ICON_RGB_WHITE,            LABEL_WHITE},
+  {ICON_RGB_OFF,              LABEL_OFF},
   {ICON_BACKGROUND,           LABEL_BACKGROUND},
   {ICON_BACKGROUND,           LABEL_BACKGROUND},
   {ICON_BACK,                 LABEL_BACK},}

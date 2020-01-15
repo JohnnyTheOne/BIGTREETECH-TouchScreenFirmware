@@ -103,12 +103,6 @@ static u32 update_time = 50; // 1 seconds is 100
 void menuMove(void)
 {
   KEY_VALUES  key_num = KEY_IDLE;
-  uint32_t B0;
-  uint32_t B1;
-  uint32_t B2;
-  uint32_t B5;
-  uint32_t B6;
-  uint32_t B7;
 
 
   #ifdef ALTERNATIVE_MOVE_MENU
@@ -270,7 +264,7 @@ void menuMove(void)
                       storeCmd(ZGCODE_INC, item_move_len[item_move_len_i]);
                     }
                   #else
-                  storeCmd(ZGCODE_DOWN,   item_move_len[item_move_len_i]);  break;
+                  storeCmd(ZGCODE_UP,   item_move_len[item_move_len_i]);  break;
                   #endif
                   break;
 
@@ -291,7 +285,7 @@ void menuMove(void)
                       storeCmd(YGCODE_DEC, item_move_len[item_move_len_i]);
                     }
                   #else
-                    storeCmd(YGCODE_UP, item_move_len[item_move_len_i]);
+                    storeCmd(YGCODE_DOWN, item_move_len[item_move_len_i]);
                   #endif
                   break;
 
@@ -304,7 +298,7 @@ void menuMove(void)
                       storeCmd(ZGCODE_DEC, item_move_len[item_move_len_i]);
                     }
                   #else
-                    storeCmd(ZGCODE_UP,   item_move_len[item_move_len_i]);  break;
+                    storeCmd(ZGCODE_DOWN,   item_move_len[item_move_len_i]);  break;
                   #endif
                   break;
 
