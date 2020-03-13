@@ -66,8 +66,6 @@
     #define DE_INDIGO               "Indigo"
     #define DE_VIOLET               "Violet"
     #define DE_DISCONNECT           "Trennen"
-    #define DE_BAUDRATE_115200      "115200"
-    #define DE_BAUDRATE_250000      "250000"
     #define DE_RUNOUT_OFF           "Runout AUS"
     #define DE_RUNOUT_ON            "Runout EIN"
     #define DE_SMART_RUNOUT_ON      "Smart EIN"
@@ -85,9 +83,9 @@
     #define DE_X_DEC                "X-"
     #define DE_Y_DEC                "Y-"
     #define DE_Z_DEC                "Z-"
-    #define DE_X_HOME               "X"
-    #define DE_Y_HOME               "Y"
-    #define DE_Z_HOME               "Z"
+    #define DE_X                    "X"
+    #define DE_Y                    "Y"
+    #define DE_Z                    "Z"
     #define DE_001_MM               "0.01mm"
     #define DE_01_MM                "0.1mm"
     #define DE_1_MM                 "1mm"
@@ -157,5 +155,7 @@
     #define DE_SEND_END_GCODE       "End-Gcode nach druck"
     #define DE_PERSISTANT_STATUS_INFO "Speicherungs-status Information"
     #define DE_FILE_LISTMODE        "Datei-Ansicht als Liste"
-
+    #define DE_CURRENT_SETTING      "Driver Current Settings"
+    #define DE_STEPS_SETTING        "Steps per MM Settings"
+    
 #endif
