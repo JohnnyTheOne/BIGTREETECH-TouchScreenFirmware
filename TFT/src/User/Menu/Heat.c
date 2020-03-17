@@ -115,7 +115,7 @@ void heatClearIsWaiting(void)
 {
   for(TOOL i = BED; i < HEATER_NUM; i++)
   {
-    heater.T[i].waiting = false;
+    heater.T[i].waiting = WAIT_NONE;
   }
   update_time = 300;
 }
@@ -161,6 +161,12 @@ void heatSetUpdateWaiting(bool isWaiting)
 void heatSetSendWaiting(TOOL tool, bool isWaiting)
 {
   send_waiting[tool] = isWaiting;
+}
+
+/* Get whether has heating command in Queue */
+bool heatGetSendWaiting(TOOL tool)
+{
+  return send_waiting[tool];
 }
 
 void showTemperature(void)
