@@ -67,7 +67,9 @@ void infoMenuSelect(void)
       #endif
       
       #ifdef LED_color_PIN
-        knob_LED_DeInit();
+        #ifndef KEEP_KNOB_LED_COLOR_MARLIN_MODE
+          knob_LED_DeInit();
+        #endif
       #endif
       GUI_SetColor(ST7920_FNCOLOR);
       GUI_SetBkColor(ST7920_BKCOLOR);
@@ -102,6 +104,7 @@ void menuMode(void)
   bool keyback = false;
 
   int16_t nowEncoder = encoderPosition = 0;
+  int16_t /*nowEncoder =*/ encoderPosition = 0;
   int8_t  nowMode = modeRadio.select = infoSettings.mode;
 
   GUI_Clear(BACKGROUND_COLOR);

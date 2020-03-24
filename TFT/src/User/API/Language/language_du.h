@@ -125,7 +125,6 @@
     #define DU_PREHEAT_ABS          "ABS"
     #define DU_IS_PAUSE             "Kan niet extruderen tijdens printen, Pauzeer printen?"
     #define DU_AUTO_SHUT_DOWN       "Auto Power"
-    #define DU_MANUAL_SHUT_DOWN     "Manueel"
     #define DU_UNIFIEDMOVE          "Beweging"
     #define DU_UNIFIEDHEAT          "Verwarm/Ventilator"
     #define DU_COOLDOWN             "Afkoelen"
@@ -152,5 +151,9 @@
     #define DU_FILE_LISTMODE        "Files viewer List Mode"
     #define DU_CURRENT_SETTING      "Driver Current Settings"
     #define DU_STEPS_SETTING        "Steps per MM Settings"
+    #define DU_RESET                "Reset"
+    #define DU_RESET_SETTINGS       "All settings will be reset to it's default values. Continue?"
+    #define DU_RESET_SETTINGS_DONE  "Resetting all settings successfully done. To take full effect, please restart the device."
+    #define DU_INFO                 "Info"
 
 #endif

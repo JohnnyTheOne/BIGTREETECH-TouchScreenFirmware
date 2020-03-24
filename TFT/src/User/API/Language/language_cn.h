@@ -125,7 +125,6 @@
     #define CN_PREHEAT_ABS          "ABS"
     #define CN_IS_PAUSE             "打印中无法挤出耗材, 是否暂停打印?"
     #define CN_AUTO_SHUT_DOWN       "自动关机"
-    #define CN_MANUAL_SHUT_DOWN     "手动关机"
     #define CN_UNIFIEDMOVE          "运动"
     #define CN_UNIFIEDHEAT          "温度"
     #define CN_COOLDOWN             "冷却"
@@ -152,5 +151,9 @@
     #define CN_FILE_LISTMODE        "文件浏览列表模式"
     #define CN_CURRENT_SETTING      "TMC驱动电流设置"
     #define CN_STEPS_SETTING        "电机每毫米脉冲数(Steps/mm)"
+    #define CN_RESET                "Reset"
+    #define CN_RESET_SETTINGS       "All settings will be reset to it's default values. Continue?"
+    #define CN_RESET_SETTINGS_DONE  "Resetting all settings successfully done. To take full effect, please restart the device."
+    #define CN_INFO                 "Info"
 
 #endif

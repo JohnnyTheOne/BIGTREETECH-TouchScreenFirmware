@@ -125,7 +125,6 @@
     #define FR_PREHEAT_ABS          "ABS"
     #define FR_IS_PAUSE             "Extrusion impossible quand l’impression est en cours, mettre impression en pause ?"
     #define FR_AUTO_SHUT_DOWN       "Auto Power"
-    #define FR_MANUAL_SHUT_DOWN     "Manual"
     #define FR_UNIFIEDMOVE          "Mouvement"
     #define FR_UNIFIEDHEAT          "Chauffer / Ventiler"
     #define FR_COOLDOWN             "Refroidissement"
@@ -152,5 +151,9 @@
     #define FR_FILE_LISTMODE        "Files viewer List Mode"
     #define FR_CURRENT_SETTING      "Driver Current Settings"
     #define FR_STEPS_SETTING        "Steps per MM Settings"
+    #define FR_RESET                "Reset"
+    #define FR_RESET_SETTINGS       "All settings will be reset to it's default values. Continue?"
+    #define FR_RESET_SETTINGS_DONE  "Resetting all settings successfully done. To take full effect, please restart the device."
+    #define FR_INFO                 "Info"
 
 #endif

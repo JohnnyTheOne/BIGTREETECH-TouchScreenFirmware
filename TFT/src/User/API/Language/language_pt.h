@@ -125,7 +125,6 @@
     #define PT_PREHEAT_ABS          "ABS"
     #define PT_IS_PAUSE             "Nao e possível a extrusão durante a impressao, pausar a impressao?"
     #define PT_AUTO_SHUT_DOWN       "Auto Power"
-    #define PT_MANUAL_SHUT_DOWN     "Manual"
     #define PT_UNIFIEDMOVE          "Movimento"
     #define PT_UNIFIEDHEAT          "Heat/Fan"
     #define PT_COOLDOWN             "Arrefecer"
@@ -152,5 +151,9 @@
     #define PT_FILE_LISTMODE        "Files viewer List Mode"
     #define PT_CURRENT_SETTING      "Driver Current Settings"
     #define PT_STEPS_SETTING        "Steps per MM Settings"
+    #define PT_RESET                "Reset"
+    #define PT_RESET_SETTINGS       "All settings will be reset to it's default values. Continue?"
+    #define PT_RESET_SETTINGS_DONE  "Resetting all settings successfully done. To take full effect, please restart the device."
+    #define PT_INFO                 "Info"
 
 #endif

@@ -125,7 +125,6 @@
     #define IT_PREHEAT_ABS          "ABS"
     #define IT_IS_PAUSE             "Impossibile estrudere durante la stampa, vuoi sospendere?"
     #define IT_AUTO_SHUT_DOWN       "Auto Spegnimento"
-    #define IT_MANUAL_SHUT_DOWN     "Manuale"
     #define IT_UNIFIEDMOVE          "Movimento"
     #define IT_UNIFIEDHEAT          "Caldo/Fan"
     #define IT_COOLDOWN             "Blocco Freddo"
@@ -152,5 +151,9 @@
     #define IT_FILE_LISTMODE        "Files viewer List Mode"
     #define IT_CURRENT_SETTING      "Driver Current Settings"
     #define IT_STEPS_SETTING        "Steps per MM Settings"
+    #define IT_RESET                "Reset"
+    #define IT_RESET_SETTINGS       "All settings will be reset to it's default values. Continue?"
+    #define IT_RESET_SETTINGS_DONE  "Resetting all settings successfully done. To take full effect, please restart the device."
+    #define IT_INFO                 "Info"
 
 #endif

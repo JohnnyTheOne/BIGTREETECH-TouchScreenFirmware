@@ -125,7 +125,6 @@
     #define AM_PREHEAT_ABS          "ABS"
     #define AM_IS_PAUSE             "Unable to extrude when printing, Pause printing?"
     #define AM_AUTO_SHUT_DOWN       "Auto Power"
-    #define AM_MANUAL_SHUT_DOWN     "Manual"
     #define AM_UNIFIEDMOVE          "Movement"
     #define AM_UNIFIEDHEAT          "Heat&Fan"
     #define AM_COOLDOWN             "Cool Down"
@@ -152,4 +151,9 @@
     #define AM_FILE_LISTMODE        "Files viewer List Mode"
     #define AM_CURRENT_SETTING      "Driver Current Settings"
     #define AM_STEPS_SETTING        "Steps per MM Settings"
+    #define AM_RESET                "Reset"
+    #define AM_RESET_SETTINGS       "All settings will be reset to it's default values. Continue?"
+    #define AM_RESET_SETTINGS_DONE  "Resetting all settings successfully done. To take full effect, please restart the device."
+    #define AM_INFO                 "Info"
+
 #endif

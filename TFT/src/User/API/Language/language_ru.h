@@ -11,7 +11,7 @@
     #define RU_SETTINGS               "Настройки"
     #define RU_SCREEN_SETTINGS        "Экран"
     #define RU_MACHINE_SETTINGS       "Принтер"
-    #define RU_FEATURE_SETTINGS       "Другие \u08D2" //Checkbox Sign
+    #define RU_FEATURE_SETTINGS       "Опции"
     #define RU_SILENT_ON              "Звук выкл"
     #define RU_SILENT_OFF             "Звук вкл"
     #define RU_SHUT_DOWN              "Выключить"
@@ -91,7 +91,7 @@
     #define RU_1_PERCENT              "1%"
     #define RU_5_PERCENT              "5%"
     #define RU_10_PERCENT             "10%"
-    #define RU_READY                  "Готов \u0894"  //Check Sign
+    #define RU_READY                  "Готов"
     #define RU_BUSY                   "Занято процессом, подождите..."
     #define RU_UNCONNECTED            "Нет подключения!"
     #define RU_DISCONNECT_INFO        "Управление принтером через компьютер"
@@ -123,16 +123,15 @@
     #define RU_PREHEAT_PLA            "PLA"
     #define RU_PREHEAT_PETG           "PETG"
     #define RU_PREHEAT_ABS            "ABS"
-    #define RU_IS_PAUSE               "Невозможна экструзия при печати, поставить на паузу?"
+    #define RU_IS_PAUSE               "Невозможна экструзия    при печати, поставить   на паузу?"
     #define RU_AUTO_SHUT_DOWN         "Автовыключение"
-    #define RU_MANUAL_SHUT_DOWN       "Выключить"
     #define RU_UNIFIEDMOVE            "Движение"
     #define RU_UNIFIEDHEAT            "Нагрев"
     #define RU_COOLDOWN               "Охладить"
     #define RU_EMERGENCYSTOP          "Экст.стоп"
     #define RU_MAINMENU               "Меню"
     #define RU_TOUCH_TO_EXIT          "Нажмите для возврата"
-    #define RU_WAIT_TEMP_SHUT_DOWN    "Дождитесь температуры сопла не ниже чем " STRINGIFY(AUTO_SHUT_DOWN_MAXTEMP) "°C" // Wait for the temperature of hotend to be lower than 50°C
+    #define RU_WAIT_TEMP_SHUT_DOWN    "Дождитесь температуры   сопла не ниже чем " STRINGIFY(AUTO_SHUT_DOWN_MAXTEMP) "°C" // Wait for the temperature of hotend to be lower than 50°C
     #define RU_FORCE_SHUT_DOWN        "Принудительно выкл"
     #define RU_SHUTTING_DOWN          "Выключаю..."
     #define RU_PARAMETER_SETTING      "Драйверы"
@@ -152,5 +151,9 @@
     #define RU_FILE_LISTMODE          "Файлы в режиме строк"
     #define RU_CURRENT_SETTING        "Настройка TMC драйверов"
     #define RU_STEPS_SETTING          "Настройка шагов на mm"
+    #define RU_RESET                  "Сброс"
+    #define RU_RESET_SETTINGS         "Все настройки экрана    будут сброшены по       умолчанию. Продолжить?"
+    #define RU_RESET_SETTINGS_DONE    "Успешный сброс настроек экрана. Для полного     вступления в силу,      перегрузите устройство."
+    #define RU_INFO                   "\u0884 Информация" //Info Sign
 
 #endif

@@ -125,7 +125,6 @@
     #define CZ_PREHEAT_ABS          "ABS"
     #define CZ_IS_PAUSE             "Během tisku nelze extrudovat, mám pozastavit tisk?"
     #define CZ_AUTO_SHUT_DOWN       "Automat"
-    #define CZ_MANUAL_SHUT_DOWN     "Ručně"
     #define CZ_UNIFIEDMOVE          "Movement"
     #define CZ_UNIFIEDHEAT          "Heat&Fan"
     #define CZ_COOLDOWN             "Zchladit"
@@ -152,5 +151,9 @@
     #define CZ_FILE_LISTMODE        "Files viewer List Mode"
     #define CZ_CURRENT_SETTING      "Driver Current Settings"
     #define CZ_STEPS_SETTING        "Steps per MM Settings"
+    #define CZ_RESET                "Reset"
+    #define CZ_RESET_SETTINGS       "All settings will be reset to it's default values. Continue?"
+    #define CZ_RESET_SETTINGS_DONE  "Resetting all settings successfully done. To take full effect, please restart the device."
+    #define CZ_INFO                 "Info"
 
 #endif

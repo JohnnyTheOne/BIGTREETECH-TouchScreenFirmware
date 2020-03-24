@@ -125,7 +125,6 @@
     #define JP_PREHEAT_ABS          "ABS"
     #define JP_IS_PAUSE             "Unable to extrude when printing, Pause printing?"
     #define JP_AUTO_SHUT_DOWN       "Auto Power"
-    #define JP_MANUAL_SHUT_DOWN     "Manual"
     #define JP_UNIFIEDMOVE          "Movement"
     #define JP_UNIFIEDHEAT          "Heat&Fan"
     #define JP_COOLDOWN             "Cool Down"
@@ -152,5 +151,9 @@
     #define JP_FILE_LISTMODE        "Files viewer List Mode"
     #define JP_CURRENT_SETTING      "Driver Current Settings"
     #define JP_STEPS_SETTING        "Steps per MM Settings"
-    
+    #define JP_RESET                "Reset"
+    #define JP_RESET_SETTINGS       "All settings will be reset to it's default values. Continue?"
+    #define JP_RESET_SETTINGS_DONE  "Resetting all settings successfully done. To take full effect, please restart the device."
+    #define JP_INFO                 "Info"
+
 #endif
