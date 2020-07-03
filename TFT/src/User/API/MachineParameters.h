@@ -57,7 +57,7 @@ float LinAdvance[1];
 
 extern PARAMETERS infoParameters;
 
-extern char *const axisDisplayID[STEPPER_COUNT];
+char *const axisDisplayID[STEPPER_COUNT];
 extern const LABEL accel_disp_ID[];
 extern const LABEL retract_disp_ID[];
 extern const LABEL recover_disp_ID[];

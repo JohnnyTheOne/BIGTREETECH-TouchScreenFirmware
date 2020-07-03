@@ -243,6 +243,7 @@ void updateFeatureSettings(uint8_t key_val)
 
     default:
       return;
+      break;
   }
    featureSettingsItems.items[key_val] = settingPage[item_index];
 }
