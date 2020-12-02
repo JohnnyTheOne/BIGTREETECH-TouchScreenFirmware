@@ -113,6 +113,7 @@
  * Options: ENGLISH, CHINESE, RUSSIAN, JAPANESE, ARMENIAN, GERMAN, CZECH,
  *          SPANISH, FRENCH, PORTUGUESE, ITALIAN, POLISH, SLOVAK, DUTCH,
  *          HUNGARIAN, TURKISH, GREEK, SLOVENIAN, CATALAN, TRAD_CHINESE,
+ *          UKRAINIAN,
  */
 #define DEFAULT_LANGUAGE ENGLISH
 
@@ -248,7 +249,7 @@
 
 /* M701, M702 ; Marlin filament load unload gcodes support
  * FILAMENT_LOAD_UNLOAD_GCODES option on Marlin configuration_adv.h need to be uncommented
- * Adds a submenu to the preheat menu for selecting load and unload actions
+ * Adds a submenu to the movement menu for selecting load and unload actions
  */
 #define LOAD_UNLOAD_M701_M702
 
