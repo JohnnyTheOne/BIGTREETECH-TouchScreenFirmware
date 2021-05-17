@@ -696,8 +696,8 @@ void parseConfigKey(uint16_t index)
       SET_VALID_INT_VALUE(infoSettings.fan_count, 1, MAX_FAN_COUNT);
       break;
 
-    case C_INDEX_FAN_CTRL_COUNT:
-      SET_VALID_INT_VALUE(infoSettings.fan_ctrl_count, 0, MAX_FAN_CTRL_COUNT);
+    case C_INDEX_CONTROLLER_FAN:
+      infoSettings.ctrl_fan_en = getOnOff();
       break;
 
     case C_INDEX_MAX_TEMP:
@@ -899,7 +899,7 @@ void parseConfigKey(uint16_t index)
         break;
     #endif
 
-    //----------------------------Power Loss Recovery & BTT UPS Settings (if connected to TFT controller)
+    //----------------------------Power Loss Recovery & BTT UPS Settings
 
     #ifdef BTT_MINI_UPS
       case C_INDEX_POWERLOSS_EN:
