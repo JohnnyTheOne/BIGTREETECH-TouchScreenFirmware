@@ -70,7 +70,8 @@ enum
   PRINTING_VALUE = (1 << 2),
 };
 
-const uint8_t printingIcon[] = {ICON_PRINTING_NOZZLE, ICON_PRINTING_BED, ICON_PRINTING_FAN, ICON_PRINTING_TIMER, ICON_PRINTING_ZLAYER, ICON_PRINTING_SPEED, ICON_PRINTING_FLOW};
+const uint8_t printingIcon[] = {ICON_PRINTING_NOZZLE, ICON_PRINTING_BED,   ICON_PRINTING_FAN,
+                                ICON_PRINTING_TIMER, ICON_PRINTING_ZLAYER, ICON_PRINTING_SPEED, ICON_PRINTING_FLOW};
 const char *const speedId[2] = {"Speed", "Flow "};
 bool hasFilamentData;
 
@@ -382,7 +383,7 @@ void drawPrintInfo(void)
                  IconCharSelect(CHARICON_INFO));
   GUI_DispStringInRectEOL(rect_of_keySS[17].x0 + BYTE_HEIGHT + STATUS_MSG_TITLE_XOFFSET,
                           rect_of_keySS[17].y0 + STATUS_MSG_ICON_YOFFSET,
-                          rect_of_keySS[17].x1 - BYTE_HEIGHT + STATUS_MSG_TITLE_XOFFSET,
+                          rect_of_keySS[17].x1 - STATUS_MSG_TITLE_XOFFSET,
                           rect_of_keySS[17].y1 - STATUS_MSG_ICON_YOFFSET,
                           (uint8_t *)textSelect(LABEL_PRINT_FINISHED));
   GUI_SetColor(INFOMSG_COLOR);
