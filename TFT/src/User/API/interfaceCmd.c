@@ -252,7 +252,7 @@ void sendQueueCmd(void)
         case 1:
           if (isPrinting() && infoMachineSettings.firmwareType != FW_REPRAPFW)  // Abort printing by "M0" in RepRapFirmware
           {
-            // pause if printing form TFT and purge M0/M1 command.
+            // pause if printing from TFT and purge M0/M1 command.
             if (infoFile.source < BOARD_SD )
             {
               purgeLastCmd(true, avoid_terminal);
@@ -553,7 +553,7 @@ void sendQueueCmd(void)
             setPrintProgressPercentage(cmd_value());
 
           if (cmd_seen('R'))
-            setPrintRemainingTime((int32_t) (cmd_float() * 60));
+            setPrintRemainingTime((cmd_value() * 60));
 
           if (!infoMachineSettings.buildPercent)  // if M73 is not supported by Marlin, skip it
           {
