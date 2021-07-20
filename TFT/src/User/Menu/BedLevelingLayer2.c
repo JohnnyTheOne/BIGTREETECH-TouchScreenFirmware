@@ -42,7 +42,7 @@ void menuBedLevelingLayer2(void)
       break;
   }
 
-  if (infoMachineSettings.zProbe == ENABLED)
+  if (infoMachineSettings.zProbe == ENABLED && !(REMOVABLE_PROBE))
   {
     bedLevelingLayer2Items.items[3].icon = ICON_LEVEL_CORNER;
     bedLevelingLayer2Items.items[3].label.index = LABEL_LEVEL_CORNER;
@@ -73,10 +73,19 @@ void menuBedLevelingLayer2(void)
     switch (key_num)
     {
       case KEY_ICON_0:
-        if (infoMachineSettings.leveling < BL_MBL)  // if ABL
+        if (infoMachineSettings.leveling < BL_MBL && !(REMOVABLE_PROBE))  // if ABL
+        {
           ablStart();
-        else                                        // if MBL
+        }
+        else if (infoMachineSettings.leveling < BL_MBL && REMOVABLE_PROBE)  // if ABL and removal probe
+        {
+          setDialogText(LABEL_WARNING, LABEL_CONNECT_PROBE, LABEL_CONTINUE, LABEL_CANCEL);
+          showDialog(DIALOG_TYPE_ALERT, ablStart, NULL, NULL);
+        }
+        else  // if MBL
+        {
           infoMenu.menu[++infoMenu.cur] = menuMBL;
+        }
         break;
 
       case KEY_ICON_1:
@@ -90,11 +99,12 @@ void menuBedLevelingLayer2(void)
         break;
 
       case KEY_ICON_3:
-        infoMenu.menu[++infoMenu.cur] = menuLevelCorner;
+        if (infoMachineSettings.zProbe == ENABLED && !(REMOVABLE_PROBE))
+          infoMenu.menu[++infoMenu.cur] = menuLevelCorner;
         break;
 
       case KEY_ICON_4:
-        if (infoMachineSettings.zProbe == ENABLED)
+        if (infoMachineSettings.zProbe == ENABLED && !(REMOVABLE_PROBE))
         {
           if (infoSettings.touchmi_sensor != 0)
             infoMenu.menu[++infoMenu.cur] = menuTouchMi;

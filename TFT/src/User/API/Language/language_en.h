@@ -38,10 +38,11 @@
     #define STRING_END_GCODE_ENABLED      "End Gcode after print"
     #define STRING_CANCEL_GCODE_ENABLED   "Cancel Gcode"
 
-    // Machine Parameter Settings
+    // Machine Parameter Settings - Param Title (ordered by gcode)
     #define STRING_STEPS_SETTING          "Steps per mm"
-    #define STRING_MAXFEEDRATE            "Max Feed Rate"
+    #define STRING_FILAMENT_SETTING       "Filament Diameter"
     #define STRING_MAXACCELERATION        "Max Acceleration"
+    #define STRING_MAXFEEDRATE            "Max Feed Rate"
     #define STRING_ACCELERATION           "Acceleration"
     #define STRING_JERK                   "Jerk"
     #define STRING_JUNCTION_DEVIATION     "Junction Deviation"
@@ -50,13 +51,18 @@
     #define STRING_FWRECOVER              "FW Retraction Recover"
     #define STRING_RETRACT_AUTO           "Auto Firmware Retract"
     #define STRING_HOTEND_OFFSET          "Offset 2nd Nozzle"
+    #define STRING_STEALTH_CHOP           "TMC StealthChop"
+    #define STRING_DELTA_CONFIGURATION    "Delta Configuration"
+    #define STRING_DELTA_TOWER_ANGLE      "Tower Angle Trim"
+    #define STRING_DELTA_ENDSTOP          "Endstop Adjustments"
     #define STRING_PROBE_OFFSET           "Probe Offset"
     #define STRING_LIN_ADVANCE            "Linear Advance"
-    #define STRING_FILAMENT_SETTING       "Filament Diameter"
     #define STRING_CURRENT_SETTING        "Driver Current (mA)"
-    #define STRING_BUMP_SENSITIVITY       "TMC bump sensitivity"
     #define STRING_HYBRID_THRESHOLD       "TMC HybridThreshold"
-    #define STRING_STEALTH_CHOP           "TMC StealthChop"
+    #define STRING_BUMP_SENSITIVITY       "TMC bump sensitivity"
+    #define STRING_MBL_OFFSET             "MBL Offset"
+
+    // Machine Parameter Settings - Param Attributes (ordered by gcode)
     #define STRING_PRINT_ACCELERATION     "Print Acceleration"
     #define STRING_RETRACT_ACCELERATION   "Retract Acceleration"
     #define STRING_TRAVEL_ACCELERATION    "Travel Acceleration"
@@ -68,7 +74,6 @@
     #define STRING_SWAP_RECOVER_LENGTH    "Extra recover swap length"
     #define STRING_RECOVER_FEEDRATE       "Recover feedrate"
     #define STRING_SWAP_RECOVER_FEEDRATE  "Swap recover feedrate"
-    #define STRING_MBL_OFFSET             "MBL Offset"
 
     // Save / Load
     #define STRING_SAVE                   "Save"
@@ -305,7 +310,7 @@
     #define STRING_UNIFIEDHEAT            "Heat/Fan"
     #define STRING_TOUCH_TO_EXIT          "Touch anywhere to exit"
     #define STRING_MAINMENU               "Menu"
-    #define STRING_PARAMETER_SETTING      "Parameter Settings"
+    #define STRING_PARAMETER_SETTING      "Settings"
     #define STRING_EEPROM_SETTINGS        "EEPROM"
     #define STRING_LEVELING_EDGE_DISTANCE "Bed edge distance"
     #define STRING_TUNING                 "Tuning"
@@ -348,5 +353,7 @@
     #define STRING_Z_ALIGN                "Z Align"
     #define STRING_MACROS                 "Macros"
     #define STRING_MESH_VALID             "Mesh Validation"
+    #define STRING_CONNECT_PROBE          "Connect probe before starting the process. Make sure to disconnect it afterwards."
+    #define STRING_CALIBRATION            "Calibration"
 
 #endif
