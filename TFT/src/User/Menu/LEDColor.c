@@ -129,7 +129,6 @@ const char * const ledString[LED_COLOR_COMPONENT_COUNT] = {"R", "G", "B", "W", "
 
 uint8_t ledPage = 0;
 uint8_t ledIndex = 0;
-SETTINGS * nowInfoSettings = NULL;
 
 uint8_t ledGetComponentIndex(uint8_t index)
 {
@@ -148,11 +147,11 @@ static inline uint8_t ledEditComponentValue(uint8_t index)
   return ledColor[realIndex] = editIntValue(LED_MIN_VALUE, LED_MAX_VALUE, ledColor[realIndex], ledColor[realIndex]);
 }
 
-uint8_t ledUpdateComponentValue(uint8_t index, int8_t unit, int8_t direction)
+uint8_t ledUpdateComponentValue(uint8_t index, int8_t unit)
 {
   uint8_t realIndex = ledGetComponentIndex(index);
 
-  return ledColor[realIndex] = NOBEYOND(LED_MIN_VALUE, ledColor[realIndex] + (int16_t) (direction * unit), LED_MAX_VALUE);
+  return ledColor[realIndex] = NOBEYOND(LED_MIN_VALUE, ledColor[realIndex] + unit, LED_MAX_VALUE);
 }
 
 uint8_t ledGetControlIndex(uint8_t keyNum)
@@ -376,11 +375,11 @@ void menuLEDColorCustom(void)
 
       // use rotary encoder to update LED component value
       case LED_KEY_INCREASE:
-        curValue = ledUpdateComponentValue(ledIndex, 1, 1);
+        curValue = ledUpdateComponentValue(ledIndex, 1);
         break;
 
       case LED_KEY_DECREASE:
-        curValue = ledUpdateComponentValue(ledIndex, 1, -1);
+        curValue = ledUpdateComponentValue(ledIndex, -1);
         break;
 
       case LED_KEY_IDLE:
@@ -405,12 +404,12 @@ void menuLEDColorCustom(void)
 
           // decrease LED component value
           case 2:
-            curValue = ledUpdateComponentValue(ledIndex, 1, -1);
+            curValue = ledUpdateComponentValue(ledIndex, -1);
             break;
 
           // increase LED component value
           case 3:
-            curValue = ledUpdateComponentValue(ledIndex, 1, 1);
+            curValue = ledUpdateComponentValue(ledIndex, 1);
             break;
 
           default:
@@ -480,12 +479,6 @@ void menuLEDColor(void)
   KEY_VALUES key_num = KEY_IDLE;
   bool forceLedOff, forceExit;
 
-  if (nowInfoSettings == NULL)
-  {
-    nowInfoSettings = (SETTINGS *) malloc(sizeof(SETTINGS));
-    *nowInfoSettings = infoSettings;
-  }
-
   LED_SetColor(&infoSettings.led_color, false);  // set (neopixel) LED light current color to configured color
   LED_SendColor(&ledColor);                      // set (neopixel) LED light to current color
   forceLedOff = false;
@@ -553,13 +546,9 @@ void menuLEDColor(void)
 
   if (forceExit)
   {
-    if (memcmp(nowInfoSettings, &infoSettings, sizeof(SETTINGS)))  // if configured color is changed, save it to flash
-      storePara();
+    saveSettings();  // save settings
 
     if (forceLedOff)  // if LED is switched off, set (neopixel) LED light current color to OFF
       LED_SetColor(&ledOff, false);
-
-    free(nowInfoSettings);
-    nowInfoSettings = NULL;
   }
 }

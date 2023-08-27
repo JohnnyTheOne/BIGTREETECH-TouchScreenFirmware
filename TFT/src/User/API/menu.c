@@ -555,9 +555,18 @@ static const LABEL *curTitle = NULL;
 static const GUI_RECT *curRect = NULL;  // current menu layout grid
 static uint16_t curRectCount = 0;       // current menu layout rect count
 
-static REMINDER reminder = {{0, 0, LCD_WIDTH, TITLE_END_Y}, 0, SYS_STATUS_DISCONNECTED, LABEL_UNCONNECTED};
-static REMINDER volumeReminder = {{0, 0, LCD_WIDTH, TITLE_END_Y}, 0, SYS_STATUS_IDLE, LABEL_NULL};
-static REMINDER busySign = {{LCD_WIDTH - 5, 0, LCD_WIDTH, 5}, 0, SYS_STATUS_BUSY, LABEL_BUSY};
+static struct { GUI_RECT rect;
+                SYS_STATUS status;
+                uint16_t inf;
+                uint32_t time;
+              } reminder = {{0, 0, LCD_WIDTH, TITLE_END_Y}, SYS_STATUS_DISCONNECTED, LABEL_UNCONNECTED, 0};
+
+static struct { uint16_t x;
+                uint16_t y;
+                uint8_t r;
+                SYS_STATUS status;
+                uint32_t time;
+              } busySign = {LCD_WIDTH - 3, 3, 3, SYS_STATUS_BUSY, 0};
 
 MENUITEMS *getCurMenuItems(void)
 {
@@ -658,116 +667,89 @@ void setMenu(MENU_TYPE menu_type, LABEL * title, uint16_t rectCount, const GUI_R
   #endif
 }
 
-void reminderMessage(int16_t inf, SYS_STATUS status)
+void drawReminderMsg(void)
+{
+  uint16_t msgRectOffset = (LCD_WIDTH - GUI_StrPixelWidth(reminder.inf)) / 2 - BYTE_WIDTH;
+
+  GUI_SetBkColor(infoSettings.title_bg_color);
+  GUI_SetColor(reminder.status == SYS_STATUS_VOL_CHANGE ? infoSettings.status_color : infoSettings.reminder_color);
+
+  // if possible, set clear space around the reminder message for more readability
+  if (msgRectOffset > 0)
+    GUI_ClearRect(reminder.rect.x0 + msgRectOffset, reminder.rect.y0, reminder.rect.x1 - msgRectOffset, reminder.rect.y1);
+
+  GUI_DispStringInPrect(&reminder.rect, reminder.inf);
+  GUI_RestoreColorDefault();
+}
+
+void setReminderMsg(int16_t inf, SYS_STATUS status)
 {
   if (toastRunning()) return;
+
+  LCD_WAKE();
+
+  // if there's already another reminder than redraw first a reminderless title
+  if (reminder.status != SYS_STATUS_IDLE)
+  {
+    reminder.status = SYS_STATUS_IDLE;
+    menuDrawTitle();
+  }
 
   reminder.inf = inf;
   reminder.status = status;
   reminder.time = OS_GetTimeMs() + STATUS_BAR_REFRESH_TIME;
 
-  if (menuType != MENU_TYPE_FULLSCREEN)
+  if (menuType != MENU_TYPE_FULLSCREEN) drawReminderMsg();
+}
+
+void loopReminderManage(void)
+{
+  if (reminder.status == SYS_STATUS_IDLE || OS_GetTimeMs() < reminder.time) return;
+
+  if (infoHost.connected == false)
   {
-    GUI_SetColor(infoSettings.reminder_color);
-    GUI_SetBkColor(infoSettings.title_bg_color);
-    GUI_DispStringInPrect(&reminder.rect, reminder.inf);
-    GUI_RestoreColorDefault();
+    if (reminder.status == SYS_STATUS_DISCONNECTED)  // no change, return
+      return;
+    else
+      setReminderMsg(LABEL_UNCONNECTED, SYS_STATUS_DISCONNECTED);  // set the no printer attached reminder
+  }
+  else if (GET_BIT(infoSettings.general_settings, INDEX_LISTENING_MODE) == 1 || isWritingMode() == true)
+  {
+    if (reminder.status == SYS_STATUS_LISTENING)  // no change, return
+      return;
+    else
+      setReminderMsg(LABEL_LISTENING, SYS_STATUS_LISTENING);  // set reminder for TFT in listening mode
+  }
+  else if (isFullCmdQueue())
+  {
+    if (reminder.status == SYS_STATUS_BUSY)  // no change, return
+      return;
+    else
+      setReminderMsg(LABEL_BUSY, SYS_STATUS_BUSY);  // set reminder for busy status
+  }
+  else
+  { // clear status message
+    reminder.status = SYS_STATUS_IDLE;
+    menuDrawTitle();
   }
 }
 
-void volumeReminderMessage(int16_t inf, SYS_STATUS status)
+void drawBusySign(void)
 {
-  LCD_WAKE();
-
-  if (toastRunning()) return;
-
-  volumeReminder.inf = inf;
-  volumeReminder.status = status;
-  volumeReminder.time = OS_GetTimeMs() + STATUS_BAR_REFRESH_TIME;
-
-  if (menuType != MENU_TYPE_FULLSCREEN)
-  {
-    GUI_SetColor(infoSettings.status_color);
-    GUI_SetBkColor(infoSettings.title_bg_color);
-    GUI_DispStringInPrect(&volumeReminder.rect, volumeReminder.inf);
-    GUI_RestoreColorDefault();
-  }
-}
-
-void busyIndicator(SYS_STATUS status)
-{
-  if (status == SYS_STATUS_BUSY)
+  if (busySign.status != SYS_STATUS_BUSY)
   {
     GUI_SetColor(MENU_BUSY_DOT_COLOR);
-    GUI_FillCircle(busySign.rect.x0, (busySign.rect.y1 - busySign.rect.y0) / 2, (busySign.rect.x1-busySign.rect.x0) / 2);
+    GUI_FillCircle(busySign.x, busySign.y, busySign.r);
     GUI_SetColor(infoSettings.font_color);
+    busySign.status = SYS_STATUS_BUSY;
   }
-  busySign.status = status;
   busySign.time = OS_GetTimeMs() + STATUS_BAR_REFRESH_TIME;
-}
-
-void loopReminderClear(void)
-{
-  switch (reminder.status)
-  {
-    case SYS_STATUS_IDLE:
-      return;
-
-    case SYS_STATUS_BUSY:
-      if (isFullCmdQueue())
-        return;
-      break;
-
-    case SYS_STATUS_DISCONNECTED:
-      if (infoHost.connected == false)
-        return;
-      break;
-
-    case SYS_STATUS_LISTENING:
-      if (GET_BIT(infoSettings.general_settings, INDEX_LISTENING_MODE) == 1 || isWritingMode() == true)
-        return;
-      break;
-
-    case SYS_STATUS_NORMAL:
-      if (OS_GetTimeMs() < reminder.time)
-        return;
-      break;
-
-    default:
-      return;
-  }
-
-  reminder.status = SYS_STATUS_IDLE;  // Clear status message
-  menuDrawTitle();
-}
-
-void loopVolumeReminderClear(void)
-{
-  if (volumeReminder.status != SYS_STATUS_NORMAL)
-  {
-    return;
-  }
-  else if (OS_GetTimeMs() < volumeReminder.time)
-  {
-    return;
-  }
-
-  volumeReminder.status = SYS_STATUS_IDLE;  // Clear status message
-  menuDrawTitle();
 }
 
 void loopBusySignClear(void)
 {
-  switch (busySign.status)
-  {
-    case SYS_STATUS_IDLE:
-      return;
-
-    case SYS_STATUS_BUSY:
-     if (OS_GetTimeMs() < busySign.time)
-        return;
-     break;
-  }
+  if (busySign.status == SYS_STATUS_IDLE || OS_GetTimeMs() < busySign.time)
+    return;
 
   busySign.status = SYS_STATUS_IDLE;  // clear busy signal status
 
@@ -776,21 +758,14 @@ void loopBusySignClear(void)
   else
   {
     GUI_SetColor(infoSettings.title_bg_color);
-    GUI_FillCircle(busySign.rect.x0, (busySign.rect.y1 - busySign.rect.y0) / 2, (busySign.rect.x1-busySign.rect.x0)/2);
+    GUI_FillCircle(busySign.x, busySign.y, busySign.r);
     GUI_SetColor(infoSettings.font_color);
   }
 }
 
 void notificationDot(void)
 {
-  if (hasNotification())
-  {
-    GUI_SetColor(infoSettings.font_color);
-  }
-  else
-  {
-    GUI_SetColor(infoSettings.title_bg_color);
-  }
+  GUI_SetColor(hasNotification() ? infoSettings.font_color : infoSettings.title_bg_color);
   GUI_FillCircle(3, 3, 3);
   GUI_RestoreColorDefault();
 }
@@ -842,16 +817,9 @@ void menuDrawTitle(void)
 
   // show notification dot
   notificationDot();
-  GUI_SetBkColor(infoSettings.bg_color);
 
   // draw reminder/storage status
-  if (reminder.status != SYS_STATUS_IDLE)
-  {
-    GUI_SetColor(infoSettings.reminder_color);
-    GUI_SetBkColor(infoSettings.title_bg_color);
-    GUI_DispStringInPrect(&reminder.rect, reminder.inf);
-    GUI_RestoreColorDefault();
-  }
+  if (reminder.status != SYS_STATUS_IDLE) drawReminderMsg();
 }
 
 // Draw the entire interface
@@ -1092,7 +1060,7 @@ KEY_VALUES menuKeyGetValue(void)
           }
           else if (MENU_IS(menuPrinting))
           {
-            if (isPrinting() || isHostPrinting())
+            if (isPrinting() || isPrintingFromOnboard())
               tempkey = (KEY_VALUES)KEY_GetValue(COUNT(rect_of_keyPS), rect_of_keyPS);
             else
               tempkey = (KEY_VALUES)KEY_GetValue(COUNT(rect_of_keyPS_end), rect_of_keyPS_end);
@@ -1198,43 +1166,33 @@ void loopCheckBackPress(void)
     }
   #endif
 
-  if (longPress == false)  // check if longpress already handled
+  if (longPress == false && Touch_Enc_ReadPen(LONG_TOUCH))  // check if longpress already handled and check if TSC is pressed and held
   {
-    if (Touch_Enc_ReadPen(LONG_TOUCH))  // check if TSC is pressed and held
+    KEY_VALUES tempKey = KEY_IDLE;
+    longPress = true;
+    touchSound = false;
+
+    if (MENU_IS(menuPrinting))
     {
-      KEY_VALUES tempKey = KEY_IDLE;
-      longPress = true;
-      touchSound = false;
+      tempKey = Key_value(COUNT(rect_of_keySS), rect_of_keySS);
+    }
+    else
+    {
+      tempKey = Key_value(COUNT(rect_of_key), rect_of_key);
+    }
 
-      if (MENU_IS(menuPrinting))
-      {
-        tempKey = Key_value(COUNT(rect_of_keySS), rect_of_keySS);
-      }
-      else
-      {
-        tempKey = Key_value(COUNT(rect_of_key), rect_of_key);
-      }
+    touchSound = true;
 
-      touchSound = true;
+    if (tempKey != KEY_IDLE && getCurMenuItems()->items[tempKey].label.index == LABEL_BACK)  // check if Back button is held
+    {
+      BUZZER_PLAY(SOUND_OK);
 
-      if (tempKey != KEY_IDLE)
-      {
-        if (getCurMenuItems()->items[tempKey].label.index != LABEL_BACK)  // check if Back button is held
-        {
-          return;
-        }
-        else
-        {
-          BUZZER_PLAY(SOUND_OK);
+      #ifdef HAS_EMULATOR
+        backHeld = true;
+      #endif
 
-          #ifdef HAS_EMULATOR
-            backHeld = true;
-          #endif
-
-          infoMenu.menu[1] = infoMenu.menu[infoMenu.cur];  // prepare menu tree for jump to 0
-          infoMenu.cur = 1;
-        }
-      }
+      infoMenu.menu[1] = infoMenu.menu[infoMenu.cur];  // prepare menu tree for jump to 0
+      infoMenu.cur = 1;
     }
   }
 }
@@ -1244,8 +1202,8 @@ void loopCheckBackPress(void)
 // Non-UI background loop tasks
 void loopBackEnd(void)
 {
-  // Get gcode command from the file to be printed
-  loopPrintFromTFT();  // handle a print from TFT media, if any
+  // Handle a print from TFT media, if any
+  loopPrintFromTFT();
 
   // Parse and send gcode commands in the queue
   sendQueueCmd();
@@ -1253,67 +1211,74 @@ void loopBackEnd(void)
   // Parse the received slave response information
   parseACK();
 
+  // Parse comment from gcode file
   if (GET_BIT(infoSettings.general_settings, INDEX_FILE_COMMENT_PARSING) == 1)  // if file comment parsing is enabled
-  {
-    parseComment();  // Parse comment from gcode file
-  }
+    parseComment();
 
+  // Retrieve and store (in command queue) the gcodes received from other UART, such as ESP3D etc...
   #ifdef SERIAL_PORT_2
-    // Parse the received gcode from other UART, such as ESP3D etc...
-    parseRcvGcode();
+    Serial_GetFromUART();
   #endif
 
   // Temperature monitor
   loopCheckHeater();
+
   // Fan speed monitor
   loopFan();
+
   // Speed & flow monitor
   loopSpeed();
 
+  // Buzzer handling
   #ifdef BUZZER_PIN
-    // Buzzer handling
     loopBuzzer();
   #endif
 
+  // Handle a print from (remote) onboard media, if any
   if (infoMachineSettings.onboardSD == ENABLED)
-  {
-    loopPrintFromOnboard();  // handle a print from (remote) onboard media, if any
-  }
+    loopPrintFromOnboard();
 
+  // Handle USB communication
   #ifdef USB_FLASH_DRIVE_SUPPORT
     USB_LoopProcess();
   #endif
 
+  // Check filament runout status
   #ifdef FIL_RUNOUT_PIN
     FIL_BE_CheckRunout();
   #endif
 
+  // Check changes in encoder steps
   #if LCD_ENCODER_SUPPORT
     #ifdef HAS_EMULATOR
       if (MENU_IS_NOT(menuMarlinMode))
     #endif
     {
-      LCD_Enc_CheckSteps();  // check change in encoder steps
+      LCD_Enc_CheckSteps();
     }
   #endif
 
+  // Check mode switching
   #ifdef HAS_EMULATOR
     Mode_CheckSwitching();
   #endif
 
+  // Handle screenshot capture
   #ifdef SCREEN_SHOT_TO_SD
     loopScreenShot();
   #endif
 
+  // Check if Back is pressed and held
   #ifdef SMART_HOME
-    // check if Back is pressed and held
     loopCheckBackPress();
   #endif
 
+  // Check LCD screen dimming
   #ifdef LCD_LED_PWM_CHANNEL
     LCD_CheckDimming();
   #endif
 
+  // Check LED Event
   if (GET_BIT(infoSettings.general_settings, INDEX_EVENT_LED) == 1)
     LED_CheckEvent();
 
@@ -1326,18 +1291,21 @@ void loopFrontEnd(void)
 {
   // Check if volume source (SD/USB) insert
   loopVolumeSource();
+
   // Loop to check and run toast messages
   loopToast();
+
   // If there is a message in the status bar, timed clear
-  loopReminderClear();
-  loopVolumeReminderClear();
+  loopReminderManage();
+
   // Busy Indicator clear
   loopBusySignClear();
+
   // Check update temperature status
   loopTemperatureStatus();
 
+  // Loop for filament runout detection
   #ifdef FIL_RUNOUT_PIN
-    // Loop for filament runout detection
     FIL_FE_CheckRunout();
   #endif
 

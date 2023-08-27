@@ -213,14 +213,6 @@ void request_M24(int pos)
 }
 
 /**
- * Abort print
- */
-void request_M524(void)
-{
-  mustStoreCmd("M524\n");
-}
-
-/**
  * Pause print
  */
 void request_M25(void)
@@ -268,10 +260,7 @@ void request_M98(const char * filename)
   mustStoreCmd(command);
 
   // prevent a race condition when rrfStatusQuery returns !busy before executing the macro
-  while (isEnqueued(command))
-  {
-    loopProcess();
-  }
+  TASK_LOOP_WHILE(isEnqueued(command))
 
   rrfStatusQueryFast();
 

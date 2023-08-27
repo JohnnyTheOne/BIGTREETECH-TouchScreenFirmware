@@ -8,7 +8,7 @@ void updateListeningMode(MENUITEMS * menu)
   if (GET_BIT(infoSettings.general_settings, INDEX_LISTENING_MODE) == 1)
   {
     menu->items[4].label.index = LABEL_OFF;
-    reminderMessage(LABEL_LISTENING, SYS_STATUS_LISTENING);
+    setReminderMsg(LABEL_LISTENING, SYS_STATUS_LISTENING);
   }
   else
   {
@@ -16,7 +16,7 @@ void updateListeningMode(MENUITEMS * menu)
   }
 }
 
-// Set uart pins to input, free uart
+// set uart pins to input, free uart
 void menuDisconnect(void)
 {
   GUI_Clear(infoSettings.bg_color);
@@ -50,7 +50,6 @@ void menuBaudrate(void)
   KEY_VALUES curIndex = KEY_IDLE;
   uint8_t curItem = 0;
   uint16_t curPage;
-  SETTINGS now = infoSettings;
 
   // fill baudrate items
   for (uint8_t i = 0; i < size; i++)
@@ -76,8 +75,8 @@ void menuBaudrate(void)
   {
     curIndex = listViewGetSelectedIndex();
 
-    if (curIndex < size && curIndex != curItem)
-    {  // has changed
+    if (curIndex < size && curIndex != curItem)  // if changed
+    {
       totalItems[curItem].icon = CHARICON_UNCHECKED;
       listViewRefreshItem(curItem);  // refresh unchecked status
       curItem = curIndex;
@@ -92,10 +91,7 @@ void menuBaudrate(void)
     loopProcess();
   }
 
-  if (memcmp(&now, &infoSettings, sizeof(SETTINGS)))
-  {
-    storePara();
-  }
+  saveSettings();  // save settings
 }
 
 void menuSerialPorts(void)
@@ -169,7 +165,7 @@ void menuConnectionSettings(void)
         // Emergency Stop : Used for emergency stopping, a reset is required to return to operational mode.
         // it may need to wait for a space to open up in the command queue.
         // Enable EMERGENCY_PARSER in Marlin Firmware for an instantaneous M112 command.
-        Serial_Puts(SERIAL_PORT, "M112\n");
+        sendEmergencyCmd("M112\n");
         break;
 
       case KEY_ICON_3:
