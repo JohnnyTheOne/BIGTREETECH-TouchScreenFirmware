@@ -105,7 +105,17 @@ void loopBreakToCondition(CONDITION_CALLBACK condCallback)
   // from that command. Than another "M108" will be sent to unlock a next possible blocking command.
   // This way enough "M108" will be sent to unlock all possible blocking command(s) (ongoing or enqueued) but not too much and
   // not too fast one after another to overload/overrun the serial communication
-  TASK_LOOP_WHILE(condCallback(), if (Serial_Available(SERIAL_PORT) != 0) sendEmergencyCmd("M108\n"));
+
+  uint16_t rIndex_old = -1;  // out of band value -1 will guarantee the beginning of M108 transmission loop
+  uint16_t rIndex;
+
+  TASK_LOOP_WHILE(condCallback(),
+                  if ((rIndex = Serial_GetReadingIndexRX(SERIAL_PORT)) != rIndex_old)
+                  {
+                    sendEmergencyCmd("M108\n");
+                    rIndex_old = rIndex;
+                  }
+                 );
 
   // remove any enqueued command that could come from a supplementary serial port or TFT media
   // (if printing from remote host or TFT media) during the loop above
@@ -122,17 +132,14 @@ uint32_t getPrintExpectedTime(void)
   return infoPrinting.expectedTime;
 }
 
-void updatePrintTime(uint32_t osTime)
+void updatePrintTime(void)
 {
-  if (osTime % 1000 == 0)
+  if (infoPrinting.printing && !infoPrinting.paused)
   {
-    if (infoPrinting.printing && !infoPrinting.paused)
-    {
-      infoPrinting.elapsedTime++;
+    infoPrinting.elapsedTime++;
 
-      if (infoPrinting.remainingTime > 0 && !heatHasWaiting())
-        infoPrinting.remainingTime--;
-    }
+    if (infoPrinting.remainingTime > 0 && !heatHasWaiting())
+      infoPrinting.remainingTime--;
   }
 }
 
@@ -303,7 +310,7 @@ void initPrintSummary(void)
   infoPrintSummary = (PRINT_SUMMARY){.name[0] = '\0', 0, 0, 0, 0, false};
 
   // save print filename (short or long filename)
-  sprintf(infoPrintSummary.name, "%." STRINGIFY(SUMMARY_NAME_LEN) "s", getPrintFilename());
+  strncpy_no_pad(infoPrintSummary.name, getPrintFilename(), SUMMARY_NAME_LEN);
 }
 
 void preparePrintSummary(void)
@@ -378,8 +385,7 @@ void completePrint(void)
     case FS_TFT_SD:
     case FS_TFT_USB:
       f_close(&infoPrinting.file);
-      powerFailedClose();   // close PLR file
-      powerFailedDelete();  // delete PLR file
+      powerFailedDelete();  // close and delete PLR file, if any
       break;
 
     case FS_ONBOARD_MEDIA:
@@ -467,18 +473,16 @@ bool startPrint(void)
         infoPrinting.cur = infoPrinting.file.fptr;
         setExtrusionDuringPause(false);
 
-        // initialize PLR info.
+        // load PLR info.
         // If print restore flag was enabled (e.g. by powerFailedSetRestore function called in PrintRestore.c),
-        // try to load PLR info from file in order to restore the print from the failed point.
+        // try to load PLR info from file in order to restore the print from the failed point (setting the offset
+        // on print file to the backed up layer).
         // It finally disables print restore flag (one shot flag) for the next print.
         // The flag must always be explicitly re-enabled (e.g by powerFailedSetRestore function)
-        powerFailedInitData();
+        //
+        printRestore = powerFailedLoad(&infoPrinting.file);
 
-        if (powerFailedCreate(infoFile.path))    // if PLR feature is enabled, open a new PLR file
-        {
-          printRestore = true;
-          powerFailedlSeek(&infoPrinting.file);  // seek on PLR file
-        }
+        powerFailedCreate(infoFile.path);  // if PLR feature is enabled, open a new PLR file
       }
 
       break;
@@ -625,7 +629,7 @@ bool pausePrint(bool isPause, PAUSE_TYPE pauseType)
     case FS_TFT_SD:
     case FS_TFT_USB:
       if (isPause == true && pauseType == PAUSE_M0)
-        loopProcessToCondition(&isNotEmptyCmdQueue);  // wait for the communication to be clean
+        TASK_LOOP_WHILE(isNotEmptyCmdQueue());  // wait for the communication to be clean
 
       static COORDINATE tmp;
       bool isCoorRelative = coorGetRelative();
@@ -808,8 +812,14 @@ void loopPrintFromTFT(void)
 {
   if (!infoPrinting.printing) return;
   if (infoFile.source >= FS_ONBOARD_MEDIA) return;  // if not printing from TFT media
-  if (heatHasWaiting() || isNotEmptyCmdQueue() || infoPrinting.paused) return;
-  if (moveCacheToCmd() == true) return;
+  if (infoPrinting.paused || heatHasWaiting() || isNotEmptyCmdQueue()) return;
+
+  // if here, the command queue is also empty and we proceed with only one of the following scenarios, in the provided order:
+  //   - initialize print restore, if any, storing a set of commands on command queue
+  //   - retrieve next command from print file and store it on command queue
+
+  if (powerFailedInitRestore())  // initialize print restore, if any, if not already initialized (one shot flag)
+    return;
 
   powerFailedCache(infoPrinting.file.fptr);  // update Power-loss Recovery file
 
@@ -896,6 +906,9 @@ void loopPrintFromTFT(void)
         }
       }
     }
+
+    if (comment_parsing)  // parse comment from gcode file
+      parseComment();
   }
 
   if (gcode_count == 0)

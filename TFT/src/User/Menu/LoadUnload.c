@@ -35,7 +35,7 @@ void menuLoadUnload(void)
 
   if (eAxisBackup.handled == false)
   {
-    loopProcessToCondition(&isNotEmptyCmdQueue);  // wait for the communication to be clean
+    TASK_LOOP_WHILE(isNotEmptyCmdQueue());  // wait for the communication to be clean
 
     eAxisBackup.coordinate = coordinateGetAxis(E_AXIS);
     eAxisBackup.handled = true;
@@ -51,7 +51,7 @@ void menuLoadUnload(void)
     key_num = menuKeyGetValue();
 
     // show reminder for process running if any button is pressed
-    if (infoHost.wait == true && key_num != KEY_IDLE)
+    if (isPendingCmd() && key_num != KEY_IDLE)
     {
       if ((lastCmd == UNLOAD_REQUESTED) || (lastCmd == UNLOAD_STARTED))
       { // unloading in progress

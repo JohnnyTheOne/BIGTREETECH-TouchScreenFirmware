@@ -1,7 +1,7 @@
 #ifndef _CONFIGURATION_H_
 #define _CONFIGURATION_H_
 
-#define CONFIG_VERSION 20220518
+#define CONFIG_VERSION 20230929
 
 //====================================================================================================
 //=============================== Settings Configurable On config.ini ================================
@@ -30,16 +30,55 @@
  *                P2: WIFI    (e.g. ESP3D)
  *                P3: UART 3  (e.g. OctoPrint)
  *                P4: UART 4
- *   Value range: P1: [min: 1, max: 9]
- *                P2: [min: 0, max: 9]
- *                P3: [min: 0, max: 9]
- *                P4: [min: 0, max: 9]
- *   Options: [OFF (port disabled): 0, 2400: 1, 9600: 2, 19200: 3, 38400: 4, 57600: 5, 115200: 6, 250000: 7, 500000: 8, 1000000: 9]
+ *   Value range: P1: [min: 1, max: 11]
+ *                P2: [min: 0, max: 11]
+ *                P3: [min: 0, max: 11]
+ *                P4: [min: 0, max: 11]
+ *   Options: [OFF (port disabled): 0, 2400: 1, 9600: 2, 19200: 3, 38400: 4, 57600: 5, 115200: 6, 230400: 7, 250000: 8, 500000: 9, 921600: 10, 1000000: 11]
  */
 #define SP_1 6  // Default: 6
 #define SP_2 0  // Default: 0
 #define SP_3 0  // Default: 0
 #define SP_4 0  // Default: 0
+
+/**
+ * TX Slots
+ * Used/effective only in case "ADVANCED_OK" is also enabled.
+ * Maximum number of G-code TX slots used by the TFT for the communication with the printer.
+ *
+ * NOTES:
+ *   - It requires "ADVANCED_OK" to be enabled.
+ *   - This setting allows a sort of static "ADVANCED_OK" feature implementation on TFT side just in
+ *     case "ADVANCED_OK" feature is disabled in Marlin firmware. You have to set it according to the
+ *     following key requirements:
+ *     - a value not bigger than "BUFSIZE" configured in Configuration_adv.h in Marlin firmware.
+ *     - "RX_BUFFER_SIZE" properly configured in Configuration_adv.h in Marlin firmware.
+ *       To be safe you need (MAX_CMD_SIZE * BUFSIZE) RX buffer. By default this is 96 * 4 bytes so
+ *       you would need to at least set RX_BUFFER_SIZE to 512 bytes, practically half of that will
+ *       be enough, but more is better/safer.
+ *   - Typically, a value of 2 is enough to keep the printer busy most of the time while preventing
+ *     buffer overruns on RX buffer. Thus, 2 is the suggested value in case users want to use the
+ *     static ADVANCED_OK feature allowed by this setting.
+ *
+ *   Value range: [min: 2, max: 16]
+ */
+#define TX_SLOTS 2  // Default: 1
+
+/**
+ * Advanced OK
+ * If enabled:
+ * - if "ADVANCED_OK" feature is enabled in Configuration_adv.h in Marlin firmware, the TFT will use
+ *   the available G-code TX slots indication provided by the mainboard to schedule the transmission
+ *   of multiple G-codes, if any, for a maximum of the given indication.
+ * - if "ADVANCED_OK" feature is disabled in Configuration_adv.h in Marlin firmware, the TFT will
+ *   support the transmission of G-codes according to the configured "TX_SLOTS" setting.
+ * If disabled, the TFT will provide the standard transmission logic based on one G-code per time.
+ *
+ * NOTE: Disable it in case no ADVANCED_OK feature is requested/needed by the user.
+ *
+ *   Options: [disable: 0, enable: 1]
+ */
+#define ADVANCED_OK 0  // Default: 0
 
 /**
  * Emulated M600
@@ -687,7 +726,7 @@
  * Z Steppers Auto-Alignment (ABL)
  * It allows to align multiple Z stepper motors using a bed probe by probing one position per stepper.
  * Enable this setting to show an icon in ABL menu allowing to run G34 command (it requires
- * Z_STEPPER_AUTO_ALIGN enabled in Configuration_adv.h in Marlin firmware).
+ * "Z_STEPPER_AUTO_ALIGN" enabled in Configuration_adv.h in Marlin firmware).
  *
  * NOTE: Only for Marlin printers with one stepper driver per Z stepper motor and no Z timing belt.
  *
@@ -857,7 +896,7 @@
  *
  * NOTE: Error messages from printer will always play the error sound.
  *
- * Parameters:
+ * Settings:
  *   touch_sound:  Enable/disable this to control touch feedback sound.
  *   toast_sound:  Enable/disable this to control all toast notification sounds.
  *   alert_sound:  Enable/disable this to control all popup and alert sounds
@@ -1075,6 +1114,12 @@
  */
 
 /**
+ * Monitoring Debug
+ * Uncomment/Enable to monitor/show system resources usage in Monitoring menu.
+ */
+#define DEBUG_MONITORING  // Default: commented (disabled)
+
+/**
  * Generic Debug
  * Uncomment/Enable to enable arbitrary debug serial communication to SERIAL_DEBUG_PORT defined in board specific Pin_xx.h file.
  */
@@ -1204,7 +1249,7 @@
 
 /**
  * M701, M702: Marlin Filament Load / Unload G-codes Support
- * FILAMENT_LOAD_UNLOAD_GCODES option on Marlin configuration_adv.h need to be uncommented.
+ * "FILAMENT_LOAD_UNLOAD_GCODES" option in Configuration_adv.h in Marlin fw needs to be uncommented.
  * Adds a submenu to the movement menu for selecting load and unload actions.
  */
 #define LOAD_UNLOAD_M701_M702  // Default: uncommented (enabled)
@@ -1305,7 +1350,7 @@
  * Enable alternative Move Menu Buttons Layout matching the direction
  * of actual printer axis Update the icons from alternate icon folder.
  */
-#define ALTERNATIVE_MOVE_MENU  // Default: uncommented (enabled)
+//#define ALTERNATIVE_MOVE_MENU  // Default: uncommented (enabled)
 
 /**
  * Friendly Z Offset Language
@@ -1386,7 +1431,7 @@
  * Uncomment to enable a progress bar with 10% markers.
  * Comment to enable a standard progress bar.
  */
-//#define MARKED_PROGRESS_BAR  // Default: commented (disabled)
+#define MARKED_PROGRESS_BAR  // Default: commented (disabled)
 
 /**
  * Live Text Common Color Layout (Status Screen menu)

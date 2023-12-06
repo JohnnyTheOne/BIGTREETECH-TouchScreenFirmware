@@ -32,10 +32,10 @@ typedef struct
 
 extern REQUEST_COMMAND_INFO requestCommandInfo;
 
-bool isWaitingResponse(void);  // condition callback for loopProcessToCondition()
 bool requestCommandInfoIsRunning(void);
 void clearRequestCommandInfo(void);
 
+void detectAdvancedOk(void);
 bool request_M21(void);
 char * request_M20(void);
 char * request_M33(const char * filename);

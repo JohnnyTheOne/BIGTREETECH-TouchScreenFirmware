@@ -3,9 +3,9 @@
 
 REQUEST_COMMAND_INFO requestCommandInfo = {0};
 
-bool isWaitingResponse(void)
+void waitForResponse(void)
 {
-  return (!requestCommandInfo.done);
+  TASK_LOOP_WHILE(!requestCommandInfo.done);
 }
 
 bool requestCommandInfoIsRunning(void)
@@ -51,13 +51,52 @@ static void resetRequestCommandInfo(
   if (string_error2)
     requestCommandInfo.error_num = 3;
 
-  loopProcessToCondition(&isNotEmptyCmdQueue);  // wait for the communication to be clean before requestCommand
+  TASK_LOOP_WHILE(isNotEmptyCmdQueue());  // wait for the communication to be clean
 
   requestCommandInfo.stream_handler = NULL;
   requestCommandInfo.inWaitResponse = true;
   requestCommandInfo.inResponse = false;
   requestCommandInfo.done = false;
   requestCommandInfo.inError = false;
+}
+
+void detectAdvancedOk(void)
+{
+  uint8_t advanced_ok = GET_BIT(infoSettings.general_settings, INDEX_ADVANCED_OK);  // backup the configured ADVANCED_OK setting
+  uint8_t cmd_index = 0;
+
+  // temporary disable the ADVANCED_OK feature (if enabled) just to allow the TFT to send only one gcode
+  // per time and the mainboard to reply with an ADVANCED_OK response with the maximum available buffers
+  SET_BIT_OFF(infoSettings.general_settings, INDEX_ADVANCED_OK);
+
+  TASK_LOOP_WHILE(isPendingCmd() && isNotEmptyCmdQueue());  // wait for the communication to be clean
+
+  resetRequestCommandInfo("ok",   // The magic to identify the start
+                          "ok",   // The magic to identify the stop
+                          NULL,   // The first magic to identify the error response
+                          NULL,   // The second error magic
+                          NULL);  // The third error magic
+
+  // send any gcode replied by the mainboard with a regular OK response ("ok\n") or an ADVANCED_OK response (e.g. "ok N10 P15 B3\n")
+  mustStoreCmd("M220\n");
+
+  waitForResponse();  // wait for response
+
+  while (requestCommandInfo.cmd_rev_buf[cmd_index] != '\0')
+  {
+    if (requestCommandInfo.cmd_rev_buf[cmd_index++] == 'B')
+    {
+      if (strtol(&requestCommandInfo.cmd_rev_buf[cmd_index], NULL, 10) != 0)  // if different than 0
+      {
+        // set infoHost.target_tx_slots and infoSettings.tx_slots to the value detected by TFT
+        infoHost.target_tx_slots = infoSettings.tx_slots = strtol(&requestCommandInfo.cmd_rev_buf[cmd_index], NULL, 10);
+      }
+    }
+  }
+
+  clearRequestCommandInfo();
+
+  SET_BIT_VALUE(infoSettings.general_settings, INDEX_ADVANCED_OK, advanced_ok);  // restore the configured ADVANCED_OK setting
 }
 
 /**
@@ -77,8 +116,7 @@ bool request_M21(void)
 
   mustStoreCmd((infoMachineSettings.multiVolume == ENABLED) ? ((infoFile.onboardSource == BOARD_SD) ? "M21 S\n" : "M21 U\n") : "M21\n");
 
-  // Wait for response
-  loopProcessToCondition(&isWaitingResponse);
+  waitForResponse();  // wait for response
 
   clearRequestCommandInfo();
 
@@ -99,8 +137,7 @@ char * request_M20(void)
   else
     mustStoreCmd("M20\n");
 
-  // Wait for response
-  loopProcessToCondition(&isWaitingResponse);
+  waitForResponse();  // wait for response
 
   //clearRequestCommandInfo();  // shall be call after copying the buffer ...
   return requestCommandInfo.cmd_rev_buf;
@@ -125,8 +162,7 @@ char * request_M33(const char * filename)
   else
     mustStoreCmd("M33 %s\n", filename);
 
-  // Wait for response
-  loopProcessToCondition(&isWaitingResponse);
+  waitForResponse();  // wait for response
 
   //clearRequestCommandInfo();  // shall be call after copying the buffer
   return requestCommandInfo.cmd_rev_buf;
@@ -177,8 +213,7 @@ long request_M23_M36(const char * filename)
     sizeTag = "size\":";  // reprap firmware reports size JSON
   }
 
-  // Wait for response
-  loopProcessToCondition(&isWaitingResponse);
+  waitForResponse();  // wait for response
 
   if (requestCommandInfo.inError)
   {
@@ -260,12 +295,12 @@ void request_M98(const char * filename)
   mustStoreCmd(command);
 
   // prevent a race condition when rrfStatusQuery returns !busy before executing the macro
-  TASK_LOOP_WHILE(isEnqueued(command))
+  TASK_LOOP_WHILE(isEnqueued(command));
 
   rrfStatusQueryFast();
 
   // Wait for macro to complete
-  loopProcessToCondition(&rrfStatusIsBusy);
+  TASK_LOOP_WHILE(rrfStatusIsBusy());
 
   rrfStatusQueryNormal();
 }
@@ -278,5 +313,5 @@ void request_M20_rrf(const char * nextdir, bool with_ts, FP_STREAM_HANDLER handl
 
   mustStoreCmd("M20 S%d P\"/%s\"\n", with_ts ? 3 : 2, nextdir);
 
-  loopProcessToCondition(&isWaitingResponse);
+  waitForResponse();  // wait for response
 }

@@ -667,6 +667,11 @@ void setMenu(MENU_TYPE menu_type, LABEL * title, uint16_t rectCount, const GUI_R
   #endif
 }
 
+SYS_STATUS getReminderStatus(void)
+{
+  return reminder.status;
+}
+
 void drawReminderMsg(void)
 {
   uint16_t msgRectOffset = (LCD_WIDTH - GUI_StrPixelWidth(reminder.inf)) / 2 - BYTE_WIDTH;
@@ -713,7 +718,7 @@ void loopReminderManage(void)
     else
       setReminderMsg(LABEL_UNCONNECTED, SYS_STATUS_DISCONNECTED);  // set the no printer attached reminder
   }
-  else if (GET_BIT(infoSettings.general_settings, INDEX_LISTENING_MODE) == 1 || isWritingMode() == true)
+  else if (infoHost.listening_mode == true || isWritingMode() == true)
   {
     if (reminder.status == SYS_STATUS_LISTENING)  // no change, return
       return;
@@ -1202,6 +1207,8 @@ void loopCheckBackPress(void)
 // Non-UI background loop tasks
 void loopBackEnd(void)
 {
+  UPD_SCAN_RATE();  // debug monitoring KPI
+
   // Handle a print from TFT media, if any
   loopPrintFromTFT();
 
@@ -1211,14 +1218,18 @@ void loopBackEnd(void)
   // Parse the received slave response information
   parseACK();
 
-  // Parse comment from gcode file
-  if (GET_BIT(infoSettings.general_settings, INDEX_FILE_COMMENT_PARSING) == 1)  // if file comment parsing is enabled
-    parseComment();
-
   // Retrieve and store (in command queue) the gcodes received from other UART, such as ESP3D etc...
   #ifdef SERIAL_PORT_2
     Serial_GetFromUART();
   #endif
+
+  // Handle USB communication
+  #ifdef USB_FLASH_DRIVE_SUPPORT
+    USB_LoopProcess();
+  #endif
+
+  if ((bePriorityCounter++ % BE_PRIORITY_DIVIDER) != 0)  // a divider value of 16 -> run 6% of the time only
+    return;
 
   // Temperature monitor
   loopCheckHeater();
@@ -1237,11 +1248,6 @@ void loopBackEnd(void)
   // Handle a print from (remote) onboard media, if any
   if (infoMachineSettings.onboardSD == ENABLED)
     loopPrintFromOnboard();
-
-  // Handle USB communication
-  #ifdef USB_FLASH_DRIVE_SUPPORT
-    USB_LoopProcess();
-  #endif
 
   // Check filament runout status
   #ifdef FIL_RUNOUT_PIN
@@ -1316,6 +1322,10 @@ void loopFrontEnd(void)
 void loopProcess(void)
 {
   loopBackEnd();
+
+  if ((fePriorityCounter++ % FE_PRIORITY_DIVIDER) != 0)  // a divider value of 16 -> run 6% of the time only
+    return;
+
   loopFrontEnd();
 }
 
@@ -1324,22 +1334,17 @@ void menuDummy(void)
   CLOSE_MENU();
 }
 
-void loopProcessToCondition(CONDITION_CALLBACK condCallback)
+void loopProcessAndGUI(void)
 {
   uint8_t curMenu = infoMenu.cur;
-  bool invokedUI = false;
 
-  while (condCallback())  // loop until the condition is no more satisfied
+  loopProcess();
+
+  if (infoMenu.cur != curMenu)  // if a user interaction is needed (e.g. dialog box), handle it
   {
-    loopProcess();
+    (*infoMenu.menu[infoMenu.cur])();  // handle user interaction
 
-    if (infoMenu.cur > curMenu)  // if a user interaction is needed (e.g. dialog box UI), handle it
-    {
-      invokedUI = true;
-      (*infoMenu.menu[infoMenu.cur])();
-    }
+    if (MENU_IS_NOT(menuDummy))  // avoid to nest menuDummy menu type
+      OPEN_MENU(menuDummy);      // load a dummy menu just to force the redraw of the underlying menu (caller menu)
   }
-
-  if (invokedUI)  // if a UI was invoked, load a dummy menu just to force the caller also to refresh its menu
-    OPEN_MENU(menuDummy);
 }

@@ -172,6 +172,7 @@ extern const GUI_RECT rect_of_titleBar[1];
 void setMenuType(MENU_TYPE type);
 MENU_TYPE getMenuType(void);
 
+SYS_STATUS getReminderStatus(void);
 void setReminderMsg(int16_t inf, SYS_STATUS status);
 void notificationDot(void);
 
@@ -215,7 +216,7 @@ void menuDummy(void);
 void loopBackEnd(void);
 void loopFrontEnd(void);
 void loopProcess(void);
-void loopProcessToCondition(CONDITION_CALLBACK condCallback);
+void loopProcessAndGUI(void);
 
 #ifdef __cplusplus
 }

@@ -26,7 +26,6 @@ typedef enum
 } WRITING_MODE;
 
 GCODE_QUEUE cmdQueue;              // command queue where commands to be sent are stored
-GCODE_QUEUE cmdCache;              // only when heatHasWaiting() returns "false" the cmd in this cache will move to cmdQueue queue
 char * cmd_ptr;
 uint8_t cmd_len;
 SERIAL_PORT_INDEX cmd_port_index;  // index of serial port originating the gcode
@@ -35,9 +34,14 @@ uint8_t cmd_index;
 WRITING_MODE writing_mode = NO_WRITING;
 FIL file;
 
+uint8_t getQueueCount(void)
+{
+  return cmdQueue.count;
+}
+
 bool isPendingCmd(void)
 {
-  return infoHost.wait;
+  return (infoHost.tx_count != 0);
 }
 
 bool isFullCmdQueue(void)
@@ -47,7 +51,7 @@ bool isFullCmdQueue(void)
 
 bool isNotEmptyCmdQueue(void)
 {
-  return (cmdQueue.count != 0 || infoHost.wait == true);
+  return (cmdQueue.count != 0 || infoHost.tx_slots == 0);  // if queue not empty or no available gcode tx slot
 }
 
 bool isEnqueued(const CMD cmd)
@@ -100,7 +104,7 @@ bool storeCmd(const char * format, ...)
 // Store gcode cmd to cmdQueue queue.
 // This command will be sent to the printer by sendQueueCmd().
 // If the cmdQueue queue is full, a reminder message is displayed
-// and it will for wait the queue to be able to store the command.
+// and it will wait for the queue to be able to store the command.
 void mustStoreCmd(const char * format, ...)
 {
   if (format[0] == 0) return;
@@ -108,7 +112,7 @@ void mustStoreCmd(const char * format, ...)
   if (cmdQueue.count >= CMD_QUEUE_SIZE)
   {
     setReminderMsg(LABEL_BUSY, SYS_STATUS_BUSY);
-    loopProcessToCondition(&isFullCmdQueue);  // wait for a free slot in the queue in case the queue is currently full
+    TASK_LOOP_WHILE(isFullCmdQueue());  // wait for a free slot in the queue in case the queue is currently full
   }
 
   va_list va;
@@ -170,40 +174,10 @@ bool storeCmdFromUART(const CMD cmd, const SERIAL_PORT_INDEX portIndex)
   return true;
 }
 
-// Store gcode cmd to cmdCache queue.
-// This command will be moved to cmdQueue queue by loopPrintFromTFT() -> moveCacheToCmd().
-// This function is used only to restore the printing status after a power failed.
-void mustStoreCacheCmd(const char * format, ...)
-{
-  if (cmdCache.count >= CMD_QUEUE_SIZE)
-  {
-    setReminderMsg(LABEL_BUSY, SYS_STATUS_BUSY);
-    loopProcessToCondition(&isFullCmdQueue);  // wait for a free slot in the queue in case the queue is currently full
-  }
-
-  va_list va;
-  va_start(va, format);
-  commonStoreCmd(&cmdCache, format, va);
-  va_end(va);
-}
-
-// Move gcode cmd from cmdCache to cmdQueue queue.
-bool moveCacheToCmd(void)
-{
-  if (cmdQueue.count >= CMD_QUEUE_SIZE || cmdCache.count == 0) return false;
-
-  storeCmd("%s", cmdCache.queue[cmdCache.index_r].gcode);
-  cmdCache.count--;
-  cmdCache.index_r = (cmdCache.index_r + 1) % CMD_QUEUE_SIZE;
-
-  return true;
-}
-
 // Clear all gcode cmd in cmdQueue queue.
 void clearCmdQueue(void)
 {
   cmdQueue.count = cmdQueue.index_w = cmdQueue.index_r = 0;
-  cmdCache.count = cmdCache.index_w = cmdCache.index_r = 0;
 }
 
 // Strip out any leading space from the passed command.
@@ -256,9 +230,8 @@ bool sendCmd(bool purge, bool avoidTerminal)
 {
   char * purgeStr = "[Purged] ";
 
-  // if TFT is in listening mode and FW type was already detected, purge the command
-  if (GET_BIT(infoSettings.general_settings, INDEX_LISTENING_MODE) == 1 &&
-      infoMachineSettings.firmwareType != FW_NOT_DETECTED)
+  // if TFT is in listening mode, purge the command
+  if (infoHost.listening_mode)
     purge = true;
 
   #if defined(SERIAL_DEBUG_PORT) && defined(DEBUG_SERIAL_COMM)
@@ -274,6 +247,8 @@ bool sendCmd(bool purge, bool avoidTerminal)
 
   if (!purge)  // if command is not purged, send it to printer
   {
+    UPD_TX_KPIS(cmd_len);  // debug monitoring KPI
+
     if (infoMachineSettings.firmwareType != FW_REPRAPFW)
       Serial_Put(SERIAL_PORT, cmd_ptr);
     else
@@ -537,8 +512,7 @@ void handleCmd(CMD cmd, const SERIAL_PORT_INDEX portIndex)
   // If not an empty gcode, we can loop on the following storeCmdFromUART() function to store the gcode on cmdQueue
 
   if (cmd[0] != '\0')
-    TASK_LOOP_WHILE(!storeCmdFromUART(cmd, portIndex))
-
+    TASK_LOOP_WHILE(!storeCmdFromUART(cmd, portIndex));
 }
 
 // Send emergency command now.
@@ -569,7 +543,7 @@ void sendEmergencyCmd(const CMD emergencyCmd, const SERIAL_PORT_INDEX portIndex)
 // Parse and send gcode cmd in cmdQueue queue.
 void sendQueueCmd(void)
 {
-  if (infoHost.wait == true || cmdQueue.count == 0) return;
+  if (infoHost.tx_slots == 0 || cmdQueue.count == 0) return;
 
   bool avoid_terminal = false;
   bool fromTFT = getCmd();  // retrieve leading gcode in the queue and check if it is originated by TFT or other hosts
@@ -578,21 +552,20 @@ void sendQueueCmd(void)
   {
     if (fromTFT)  // ignore any command from TFT media
     {
-      sendCmd(true, avoid_terminal);
+      sendCmd(true, avoid_terminal);  // skip the command
     }
     else if (writing_mode == TFT_WRITING)  // if the command is from remote to TFT media
     {
       writeRemoteTFT();
 
-      sendCmd(true, avoid_terminal);
+      sendCmd(true, avoid_terminal);  // skip the command
     }
     else  // otherwise, if the command is from remote to onboard media
     {
       if (cmd_ptr[cmd_base_index] == 'M' && cmd_value() == 29)  // if M29, stop writing mode
         writing_mode = NO_WRITING;
 
-      if (sendCmd(false, avoid_terminal) == true)  // if the command was sent
-        infoHost.wait = infoHost.connected;
+      goto send_cmd;  // send the command
     }
 
     return;
@@ -1481,9 +1454,21 @@ void sendQueueCmd(void)
     case 'T':
       heatSetToolIndex(cmd_value());
       break;
-
   }  // end parsing cmd
 
-  if (sendCmd(false, avoid_terminal) == true)  // if command was sent
-    infoHost.wait = infoHost.connected;
+send_cmd:
+  // if command was sent:
+  //   - if TFT is connected, update tx slots and tx count
+  //   - if TFT is not connected, consider the command as an out of band message
+  //
+  if (sendCmd(false, avoid_terminal) == true && infoHost.connected == true)
+  {
+    // decrease the number of available tx slots and increase the pending commands tx count
+    //
+    // NOTE: no need to check infoHost.tx_slots > 0 before decreasing infoHost.tx_slots because the check
+    //       infoHost.tx_slots == 0 was already performed at the beginning of sendQueueCmd() function
+    //
+    infoHost.tx_slots--;
+    infoHost.tx_count++;
+  }
 }  // sendQueueCmd
