@@ -536,15 +536,6 @@ void menuClearGaps(void)
 #endif
 }
 
-void GUI_RestoreColorDefault(void)
-{
-  GUI_SetBkColor(infoSettings.bg_color);
-  GUI_SetColor(infoSettings.font_color);
-  GUI_SetTextMode(GUI_TEXTMODE_NORMAL);
-  GUI_SetNumMode(GUI_NUMMODE_SPACE);
-  setFontSize(FONT_SIZE_NORMAL);
-}
-
 static const MENUITEMS *curMenuItems = NULL;  // current menu
 static const LISTITEMS *curListItems = NULL;  // current listmenu
 
@@ -567,105 +558,6 @@ static struct { uint16_t x;
                 SYS_STATUS status;
                 uint32_t time;
               } busySign = {LCD_WIDTH - 3, 3, 3, SYS_STATUS_BUSY, 0};
-
-MENUITEMS *getCurMenuItems(void)
-{
-  return (MENUITEMS *)curMenuItems;
-}
-
-LISTITEMS *getCurListItems(void)
-{
-  return (LISTITEMS *)curListItems;
-}
-
-// Get the top left point of the corresponding icon position)
-GUI_POINT getIconStartPoint(int index)
-{
-  GUI_POINT p = {curRect[index].x0, curRect[index].y0};
-  return p;
-}
-
-uint8_t *labelGetAddress(const LABEL *label)
-{
-  if (label == NULL || label->index == LABEL_NULL)  // No content in label
-    return NULL;
-  if (label->index < LABEL_NUM)  // Index of language
-    return textSelect(label->index);
-  else  // Address of string
-    return label->address;
-}
-
-void menuDrawItem(const ITEM *item, uint8_t position)
-{
-  menuDrawIconOnly(item, position);
-  menuDrawIconText(item, position);
-}
-
-void menuDrawIconOnly(const ITEM *item, uint8_t position)
-{
-  const GUI_RECT *rect = curRect + position;
-  if (item->icon != ICON_NULL)
-    ICON_ReadDisplay(rect->x0, rect->y0, item->icon);
-  else
-    GUI_ClearPrect(rect);
-}
-
-void menuDrawIconText(const ITEM *item, uint8_t position)
-{
-  uint8_t *content = labelGetAddress(&item->label);
-  const GUI_RECT *rect = curRect + ITEM_PER_PAGE + position;
-  GUI_ClearPrect(rect);
-  if (content)
-    GUI_DispStringInPrect(rect, content);
-}
-
-void menuDrawListItem(const LISTITEM *item, uint8_t position)
-{
-  const GUI_RECT *rect = rect_of_keyListView + position;
-  if (item->icon == CHARICON_NULL)
-  {
-    GUI_ClearPrect(rect);
-  }
-  else
-  {
-    ListItem_Display(rect, position, item, false);
-  }
-}
-
-void menuRefreshListPage(void)
-{
-  for (uint8_t i = 0; i < ITEM_PER_PAGE; i++)
-  {
-    RAPID_PRINTING_COMM()  // perform backend printing loop between drawing icons to avoid printer idling
-    menuDrawListItem(&curListItems->items[i], i);
-  }
-}
-
-void setMenuType(MENU_TYPE type)
-{
-  menuType = type;
-}
-
-MENU_TYPE getMenuType(void)
-{
-  return menuType;
-}
-
-void setMenu(MENU_TYPE menu_type, LABEL * title, uint16_t rectCount, const GUI_RECT * menuRect,
-             void (*action_redraw)(uint8_t position, uint8_t is_press),
-             void (*menu_redraw)(void))
-{
-  menuType = menu_type;
-  curRect = menuRect;
-  curRectCount = rectCount;
-  curTitle = title;
-  TSC_ReDrawIcon = action_redraw;
-  curMenuRedrawHandle = menu_redraw;
-
-  #if LCD_ENCODER_SUPPORT
-    encoderPosition = 0;
-  #endif
-}
 
 SYS_STATUS getReminderStatus(void)
 {
@@ -775,6 +667,114 @@ void notificationDot(void)
   GUI_RestoreColorDefault();
 }
 
+void GUI_RestoreColorDefault(void)
+{
+  GUI_SetBkColor(infoSettings.bg_color);
+  GUI_SetColor(infoSettings.font_color);
+  GUI_SetTextMode(GUI_TEXTMODE_NORMAL);
+  GUI_SetNumMode(GUI_NUMMODE_SPACE);
+  setFontSize(FONT_SIZE_NORMAL);
+}
+
+MENUITEMS *getCurMenuItems(void)
+{
+  return (MENUITEMS *)curMenuItems;
+}
+
+LISTITEMS *getCurListItems(void)
+{
+  return (LISTITEMS *)curListItems;
+}
+
+// Get the top left point of the corresponding icon position)
+GUI_POINT getIconStartPoint(int index)
+{
+  GUI_POINT p = {curRect[index].x0, curRect[index].y0};
+  return p;
+}
+
+uint8_t *labelGetAddress(const LABEL *label)
+{
+  if (label == NULL || label->index == LABEL_NULL)  // No content in label
+    return NULL;
+  if (label->index < LABEL_NUM)  // Index of language
+    return textSelect(label->index);
+  else  // Address of string
+    return label->address;
+}
+
+void menuDrawItem(const ITEM *item, uint8_t position)
+{
+  menuDrawIconOnly(item, position);
+  menuDrawIconText(item, position);
+}
+
+void menuDrawIconOnly(const ITEM *item, uint8_t position)
+{
+  const GUI_RECT *rect = curRect + position;
+  if (item->icon != ICON_NULL)
+    ICON_ReadDisplay(rect->x0, rect->y0, item->icon);
+  else
+    GUI_ClearPrect(rect);
+}
+
+void menuDrawIconText(const ITEM *item, uint8_t position)
+{
+  uint8_t *content = labelGetAddress(&item->label);
+  const GUI_RECT *rect = curRect + ITEM_PER_PAGE + position;
+  GUI_ClearPrect(rect);
+  if (content)
+    GUI_DispStringInPrect(rect, content);
+}
+
+void menuDrawListItem(const LISTITEM *item, uint8_t position)
+{
+  const GUI_RECT *rect = rect_of_keyListView + position;
+  if (item->icon == CHARICON_NULL)
+  {
+    GUI_ClearPrect(rect);
+  }
+  else
+  {
+    ListItem_Display(rect, position, item, false);
+  }
+}
+
+void menuRefreshListPage(void)
+{
+  for (uint8_t i = 0; i < ITEM_PER_PAGE; i++)
+  {
+    RAPID_PRINTING_COMM()  // perform backend printing loop between drawing icons to avoid printer idling
+    menuDrawListItem(&curListItems->items[i], i);
+  }
+}
+
+void setMenuType(MENU_TYPE type)
+{
+  menuType = type;
+}
+
+MENU_TYPE getMenuType(void)
+{
+  return menuType;
+}
+
+void setMenu(MENU_TYPE menu_type, LABEL * title, uint16_t rectCount, const GUI_RECT * menuRect,
+             void (*action_redraw)(uint8_t position, uint8_t is_press),
+             void (*menu_redraw)(void))
+{
+  menuType = menu_type;
+  curRect = menuRect;
+  curRectCount = rectCount;
+  curTitle = title;
+  curMenuRedrawHandle = menu_redraw;
+  TS_ReDrawIcon = action_redraw;
+
+  #if LCD_ENCODER_SUPPORT
+    encoderPosition = 0;
+  #endif
+}
+
 void menuSetTitle(const LABEL *title)
 {
   curTitle = title;
@@ -801,10 +801,14 @@ void menuDrawTitle(void)
   }
 
   // draw title
-  uint8_t *titleString = labelGetAddress(curTitle);
   uint16_t start_y = (TITLE_END_Y - BYTE_HEIGHT) / 2;
   uint16_t start_x = 10;
   uint16_t end_x = drawTemperatureStatus();
+
+  // NOTE: load the label just before displaying it. This is needed only in case a secondary language pack (.ini file) is used
+  //       by the TFT (secondary language shares a common buffer where all labels are loaded from flash memory) just to avoid the
+  //       possibility to display a wrong label
+  uint8_t *titleString = labelGetAddress(curTitle);
 
   GUI_SetBkColor(infoSettings.title_bg_color);
 
@@ -827,14 +831,64 @@ void menuDrawTitle(void)
   if (reminder.status != SYS_STATUS_IDLE) drawReminderMsg();
 }
 
+// When there is a button value, the icon changes color and redraws
+void itemDrawIconPress(uint8_t position, uint8_t is_press)
+{
+  if (position > KEY_ICON_7) return;
+
+  if (menuType == MENU_TYPE_ICON)
+  {
+    if (curMenuItems == NULL) return;
+    if (curMenuItems->items[position].icon == ICON_NULL) return;
+
+    const GUI_RECT *rect = curRect + position;
+
+    if (is_press)  // Turn green when pressed
+      ICON_PressedDisplay(rect->x0, rect->y0, curMenuItems->items[position].icon);
+    else  // Redraw normal icon when released
+      ICON_ReadDisplay(rect->x0, rect->y0,curMenuItems->items[position].icon);
+  }
+  else if (menuType == MENU_TYPE_LISTVIEW)
+  { // draw rec over list item if pressed
+    if (curListItems == NULL)
+      return;
+
+    const GUI_RECT *rect = rect_of_keyListView + position;
+
+    if (curListItems->items[position].icon == CHARICON_NULL)
+    {
+      GUI_ClearPrect(rect);
+      return;
+    }
+    if (is_press)
+      ListItem_Display(rect,position,&curListItems->items[position], true);
+    else
+      ListItem_Display(rect,position,&curListItems->items[position], false);
+  }
+}
+
+// When there is a button value, the icon changes color and redraws
+void itemDrawIconPress_PS(uint8_t position, uint8_t is_press)
+{
+  if (position < PS_KEY_6 || position > PS_KEY_9) return;
+  position -= PS_TOUCH_OFFSET;
+
+  const GUI_RECT *rect = curRect + position;
+
+  if (is_press)  // Turn green when pressed
+    ICON_PressedDisplay(rect->x0, rect->y0, curMenuItems->items[position].icon);
+  else  // Redraw normal icon when released
+    ICON_ReadDisplay(rect->x0, rect->y0,curMenuItems->items[position].icon);
+}
+
 // Draw the entire interface
 void menuDrawPage(const MENUITEMS *menuItems)
 {
   uint8_t i = 0;
   menuType = MENU_TYPE_ICON;
   curMenuItems = menuItems;
-  TSC_ReDrawIcon = (MENU_IS(menuPrinting)) ? itemDrawIconPress_PS : itemDrawIconPress;
   curMenuRedrawHandle = NULL;
+  TS_ReDrawIcon = (MENU_IS(menuPrinting)) ? itemDrawIconPress_PS : itemDrawIconPress;
 
   #ifdef PORTRAIT_MODE
     if (MENU_IS(menuPrinting))
@@ -880,8 +934,8 @@ void menuDrawListPage(const LISTITEMS *listItems)
   uint8_t i = 0;
   menuType = MENU_TYPE_LISTVIEW;
   curListItems = listItems;
-  TSC_ReDrawIcon = itemDrawIconPress;
   curMenuRedrawHandle = NULL;
+  TS_ReDrawIcon = itemDrawIconPress;
 
   GUI_SetBkColor(infoSettings.title_bg_color);
   GUI_ClearRect(0, 0, LCD_WIDTH, TITLE_END_Y);
@@ -969,7 +1023,7 @@ void showLiveInfo(uint8_t index, const LIVE_INFO * liveicon, bool redrawIcon)
   }
 
   GUI_RestoreColorDefault();
-}  // showLiveInfo
+} // showLiveInfo
 
 void displayExhibitHeader(const char * titleStr, const char * unitStr)
 {
@@ -996,56 +1050,6 @@ void displayExhibitValue(const char * valueStr)
   setFontSize(FONT_SIZE_LARGE);
   GUI_DispStringInPrect(&exhibitRect, (uint8_t *) valueStr);
   setFontSize(FONT_SIZE_NORMAL);
-}
-
-// When there is a button value, the icon changes color and redraws
-void itemDrawIconPress(uint8_t position, uint8_t is_press)
-{
-  if (position > KEY_ICON_7) return;
-
-  if (menuType == MENU_TYPE_ICON)
-  {
-    if (curMenuItems == NULL) return;
-    if (curMenuItems->items[position].icon == ICON_NULL) return;
-
-    const GUI_RECT *rect = curRect + position;
-
-    if (is_press)  // Turn green when pressed
-      ICON_PressedDisplay(rect->x0, rect->y0, curMenuItems->items[position].icon);
-    else  // Redraw normal icon when released
-      ICON_ReadDisplay(rect->x0, rect->y0,curMenuItems->items[position].icon);
-  }
-  else if (menuType == MENU_TYPE_LISTVIEW)
-  { // draw rec over list item if pressed
-    if (curListItems == NULL)
-      return;
-
-    const GUI_RECT *rect = rect_of_keyListView + position;
-
-    if (curListItems->items[position].icon == CHARICON_NULL)
-    {
-      GUI_ClearPrect(rect);
-      return;
-    }
-    if (is_press)
-      ListItem_Display(rect,position,&curListItems->items[position], true);
-    else
-      ListItem_Display(rect,position,&curListItems->items[position], false);
-  }
-}
-
-// When there is a button value, the icon changes color and redraws
-void itemDrawIconPress_PS(uint8_t position, uint8_t is_press)
-{
-  if (position < PS_KEY_6 || position > PS_KEY_9) return;
-  position -= PS_TOUCH_OFFSET;
-
-  const GUI_RECT *rect = curRect + position;
-
-  if (is_press)  // Turn green when pressed
-    ICON_PressedDisplay(rect->x0, rect->y0, curMenuItems->items[position].icon);
-  else  // Redraw normal icon when released
-    ICON_ReadDisplay(rect->x0, rect->y0,curMenuItems->items[position].icon);
 }
 
 // Get button value
@@ -1141,7 +1145,7 @@ void loopCheckBackPress(void)
     static bool backHeld = false;
   #endif
 
-  if (!isPress())
+  if (!TS_IsPressed())
   {
     longPress = false;
 
@@ -1175,18 +1179,18 @@ void loopCheckBackPress(void)
   {
     KEY_VALUES tempKey = KEY_IDLE;
     longPress = true;
-    touchSound = false;
+    TS_Sound = false;
 
     if (MENU_IS(menuPrinting))
     {
-      tempKey = Key_value(COUNT(rect_of_keySS), rect_of_keySS);
+      tempKey = TS_KeyValue(COUNT(rect_of_keySS), rect_of_keySS);
     }
     else
     {
-      tempKey = Key_value(COUNT(rect_of_key), rect_of_key);
+      tempKey = TS_KeyValue(COUNT(rect_of_key), rect_of_key);
     }
 
-    touchSound = true;
+    TS_Sound = true;
 
     if (tempKey != KEY_IDLE && getCurMenuItems()->items[tempKey].label.index == LABEL_BACK)  // check if Back button is held
     {
@@ -1203,148 +1207,3 @@ void loopCheckBackPress(void)
 }
 
 #endif  // SMART_HOME
-
-// Non-UI background loop tasks
-void loopBackEnd(void)
-{
-  UPD_SCAN_RATE();  // debug monitoring KPI
-
-  // Handle a print from TFT media, if any
-  loopPrintFromTFT();
-
-  // Parse and send gcode commands in the queue
-  sendQueueCmd();
-
-  // Parse the received slave response information
-  parseACK();
-
-  // Retrieve and store (in command queue) the gcodes received from other UART, such as ESP3D etc...
-  #ifdef SERIAL_PORT_2
-    Serial_GetFromUART();
-  #endif
-
-  // Handle USB communication
-  #ifdef USB_FLASH_DRIVE_SUPPORT
-    USB_LoopProcess();
-  #endif
-
-  if ((bePriorityCounter++ % BE_PRIORITY_DIVIDER) != 0)  // a divider value of 16 -> run 6% of the time only
-    return;
-
-  // Temperature monitor
-  loopCheckHeater();
-
-  // Fan speed monitor
-  loopFan();
-
-  // Speed & flow monitor
-  loopSpeed();
-
-  // Buzzer handling
-  #ifdef BUZZER_PIN
-    loopBuzzer();
-  #endif
-
-  // Handle a print from (remote) onboard media, if any
-  if (infoMachineSettings.onboardSD == ENABLED)
-    loopPrintFromOnboard();
-
-  // Check filament runout status
-  #ifdef FIL_RUNOUT_PIN
-    FIL_BE_CheckRunout();
-  #endif
-
-  // Check changes in encoder steps
-  #if LCD_ENCODER_SUPPORT
-    #ifdef HAS_EMULATOR
-      if (MENU_IS_NOT(menuMarlinMode))
-    #endif
-    {
-      LCD_Enc_CheckSteps();
-    }
-  #endif
-
-  // Check mode switching
-  #ifdef HAS_EMULATOR
-    Mode_CheckSwitching();
-  #endif
-
-  // Handle screenshot capture
-  #ifdef SCREEN_SHOT_TO_SD
-    loopScreenShot();
-  #endif
-
-  // Check if Back is pressed and held
-  #ifdef SMART_HOME
-    loopCheckBackPress();
-  #endif
-
-  // Check LCD screen dimming
-  #ifdef LCD_LED_PWM_CHANNEL
-    LCD_CheckDimming();
-  #endif
-
-  // Check LED Event
-  if (GET_BIT(infoSettings.general_settings, INDEX_EVENT_LED) == 1)
-    LED_CheckEvent();
-
-  // Query RRF status
-  rrfStatusQuery();
-}
-
-// UI-related background loop tasks
-void loopFrontEnd(void)
-{
-  // Check if volume source (SD/USB) insert
-  loopVolumeSource();
-
-  // Loop to check and run toast messages
-  loopToast();
-
-  // If there is a message in the status bar, timed clear
-  loopReminderManage();
-
-  // Busy Indicator clear
-  loopBusySignClear();
-
-  // Check update temperature status
-  loopTemperatureStatus();
-
-  // Loop for filament runout detection
-  #ifdef FIL_RUNOUT_PIN
-    FIL_FE_CheckRunout();
-  #endif
-
-  // Loop for popup menu
-  loopPopup();
-}
-
-void loopProcess(void)
-{
-  loopBackEnd();
-
-  if ((fePriorityCounter++ % FE_PRIORITY_DIVIDER) != 0)  // a divider value of 16 -> run 6% of the time only
-    return;
-
-  loopFrontEnd();
-}
-
-void menuDummy(void)
-{
-  CLOSE_MENU();
-}
-
-void loopProcessAndGUI(void)
-{
-  uint8_t curMenu = infoMenu.cur;
-
-  loopProcess();
-
-  if (infoMenu.cur != curMenu)  // if a user interaction is needed (e.g. dialog box), handle it
-  {
-    (*infoMenu.menu[infoMenu.cur])();  // handle user interaction
-
-    if (MENU_IS_NOT(menuDummy))  // avoid to nest menuDummy menu type
-      OPEN_MENU(menuDummy);      // load a dummy menu just to force the redraw of the underlying menu (caller menu)
-  }
-}

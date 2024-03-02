@@ -7,6 +7,16 @@ extern "C" {
 
 #include <stdint.h>
 
+// NOTE: "ms" attribute defined as "volatile" to avoid freezes in case the inline OS_GetTimeMs()
+//       function is used on a loop statement such as "while (frameTimeStamp == OS_GetTimeMs());"
+//       in the Knob_LED_SetColor() function in Knob_LED.c (the value of OS_GetTimeMs() will be
+//       cached on a register and never updated causing no exit from the loop)
+typedef struct
+{
+  volatile uint32_t ms;  // milliseconds
+  uint16_t sec;          // seconds
+} OS_COUNTER;
+
 typedef void (*FP_TASK)(void *);
 
 typedef struct
@@ -19,8 +29,14 @@ typedef struct
   uint8_t  is_repeat;
 } OS_TASK;
 
-void OS_TimerInitMs(void);
-uint32_t OS_GetTimeMs(void);
+extern OS_COUNTER os_counter;
+
+void OS_InitTimerMs(void);
+
+static inline uint32_t OS_GetTimeMs(void)
+{
+  return os_counter.ms;
+}
 
 void OS_TaskInit(OS_TASK *task, uint32_t time_ms, FP_TASK function, void *para);
 void OS_TaskLoop(OS_TASK *task);

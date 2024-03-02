@@ -1,7 +1,7 @@
 #ifndef _CONFIGURATION_H_
 #define _CONFIGURATION_H_
 
-#define CONFIG_VERSION 20230929
+#define CONFIG_VERSION 20240203
 
 //====================================================================================================
 //=============================== Settings Configurable On config.ini ================================
@@ -74,11 +74,49 @@
  *   support the transmission of G-codes according to the configured "TX_SLOTS" setting.
  * If disabled, the TFT will provide the standard transmission logic based on one G-code per time.
  *
- * NOTE: Disable it in case no ADVANCED_OK feature is requested/needed by the user.
+ * NOTE: Disable it in case:
+ *       - no ADVANCED_OK feature is requested/needed by the user.
+ *       - ADVANCED_OK feature is not providing good printing results or if the mainboard notifies
+ *         frequent error ACK messages (e.g. unknown command) to the TFT during printing.
+ *       - COMMAND_CHECKSUM feature (see description of next setting "COMMAND_CHECKSUM") is
+ *         requested/needed by the user.
  *
  *   Options: [disable: 0, enable: 1]
  */
 #define ADVANCED_OK 0  // Default: 0
+
+/**
+ * Command Checksum
+ * The TFT enriches each G-code to be sent to the mainboard adding a leading sequential line number
+ * and a trailing checksum appended after an "*" character used as separator.
+ * The checksum is based on algorithm "CheckSum8 Xor" and it is calculated on the G-code with the
+ * applied line number. E.g. "G28" is firstly enriched with a line number (e.g. "N1 G28") and finally
+ * a checksum calculated on that enriched G-code is appended (e.g. "N1 G28*18").
+ * A data integrity check (sequential line number check and checksum check) will be performed on the
+ * mainboard. In case of data mismatch (e.g. data corruption due to EMI on communication serial line):
+ * - the mainboard will send to the TFT an error ACK message followed by a "Resend: " ACK message to
+ *   ask TFT to resend the G-code with the requested line number.
+ * - the TFT will check the presence on an internal buffer of the G-code with the requested line number:
+ *   - if found, the G-code is resent for a maximum of 3 attempts.
+ *   - if not found or the maximum number of attempts has been reached, the TFT will reset the line
+ *     number with an "M110" G-code (immediately sent bypassing any other enqueued G-code) to the
+ *     requested line number just to try to avoid further retransmission requests for the same line
+ *     number or for any out of synch command already sent to the mainboard (e.g. in case ADVANCED_OK
+ *     feature is enabled in TFT).
+ *
+ * NOTE: Disable it in case:
+ *       - printing is controlled by a remote host (e.g. ESP3D, OctoPrint etc.) and a COMMAND_CHECKSUM
+ *         feature is enabled and managed by the remote host. Otherwise (COMMAND_CHECKSUM feature also
+ *         enabled in TFT), the TFT's COMMAND_CHECKSUM feature will always replace the one provided by
+ *         the remote host causing conflicts in case data mismatch will be notified by the mainboard.
+ *       - ADVANCED_OK feature is enabled in TFT. Otherwise, any out of synch command already sent to
+ *         the mainboard will be discarded by the mainboard and not resent by the TFT due the current
+ *         implementation of COMMAND_CHECKSUM feature on the TFT buffers only the last sent command
+ *         and not all the pending commands.
+ *
+ *   Options: [disable: 0, enable: 1]
+ */
+#define COMMAND_CHECKSUM 1  // Default: 1
 
 /**
  * Emulated M600
@@ -209,7 +247,7 @@
  *   Options: [OFF: 0, POPUP: 1, TOAST: 2]
  *     OFF:   No notification. The message is ignored.
  *     POPUP: Display a popup window for user confirmation.
- *     TOAST: A non-blocking Toast notification is displayed for few seconds. No user interaction is needed.
+ *     TOAST: A non-blocking toast notification is displayed for few seconds. No user interaction is needed.
  */
 #define ACK_NOTIFICATION 1  // Default: 1
 
@@ -694,15 +732,15 @@
  * is moved to the XY probing point.
  * If disabled, after homing the nozzle is moved directly to the XY homing point. This is useful
  * in case Marlin firmware is configured to use the probe for Z axis homing (e.g.
- * USE_PROBE_FOR_Z_HOMING enabled in Marlin firmware) to avoid a second probing after homing.
+ * "USE_PROBE_FOR_Z_HOMING" enabled in Marlin firmware) to avoid a second probing after homing.
  *
  * NOTES:
  *   - Enable it in case Marlin firmware is not configured to use the probe for Z axis homing
- *     (e.g. USE_PROBE_FOR_Z_HOMING disabled in Marlin firmware) or the XY probing point set
+ *     (e.g. "USE_PROBE_FOR_Z_HOMING" disabled in Marlin firmware) or the XY probing point set
  *     for homing is not reachable by the nozzle (e.g. due to HW limitations/constraints or
  *     printer specific configuration).
  *   - Disable it (preferably) in case Marlin firmware is configured to use the probe for Z axis
- *     homing (e.g. USE_PROBE_FOR_Z_HOMING enabled in Marlin firmware).
+ *     homing (e.g. "USE_PROBE_FOR_Z_HOMING" enabled in Marlin firmware).
  *
  *   Options: [disable: 0, enable: 1]
  */
@@ -732,7 +770,7 @@
  *
  *   Options: [disable: 0, enable: 1]
  */
-#define Z_STEPPER_ALIGNEMENT 0  // Default: 0
+#define Z_STEPPERS_ALIGNMENT 0  // Default: 0
 
 /**
  * TouchMI Settings (ABL)
@@ -802,6 +840,10 @@
 /**
  * Filament Runout Sensor
  * Select the type of filament runout sensor and its default enabled/disabled state.
+ *
+ * NOTE: Smart Filament Sensor (SFS) (value 2 or 3) is a sensor based on an encoder disc that
+ *       toggles runout pin as filament moves (e.g. the BigTreeTech SFS).
+ *
  *   Options: [Normal Disabled: 0, Normal Enabled: 1, Smart Disabled: 2, Smart Enabled: 3]
  */
 #define FIL_RUNOUT 0  // Default: 0
@@ -834,6 +876,10 @@
  * Smart Filament Runout Detection
  * Used in conjunction with an SFS (Smart Filament Sensor) based on an encoder disc that
  * toggles runout pin as filament moves.
+ *
+ * NOTE: This setting is taken into account by the TFT only in case "FIL_RUNOUT" setting is
+ *       set to 2 or 3 (an SFS is used).
+ *
  *   Unit: [distance in mm]
  *   Value range: [min: 1, max: 50]
  */
@@ -1117,7 +1163,7 @@
  * Monitoring Debug
  * Uncomment/Enable to monitor/show system resources usage in Monitoring menu.
  */
-#define DEBUG_MONITORING  // Default: commented (disabled)
+#define DEBUG_MONITORING  // Default: uncommented (enabled)
 
 /**
  * Generic Debug
@@ -1350,7 +1396,7 @@
  * Enable alternative Move Menu Buttons Layout matching the direction
  * of actual printer axis Update the icons from alternate icon folder.
  */
-//#define ALTERNATIVE_MOVE_MENU  // Default: uncommented (enabled)
+#define ALTERNATIVE_MOVE_MENU  // Default: uncommented (enabled)
 
 /**
  * Friendly Z Offset Language
@@ -1431,7 +1477,7 @@
  * Uncomment to enable a progress bar with 10% markers.
  * Comment to enable a standard progress bar.
  */
-#define MARKED_PROGRESS_BAR  // Default: commented (disabled)
+//#define MARKED_PROGRESS_BAR  // Default: commented (disabled)
 
 /**
  * Live Text Common Color Layout (Status Screen menu)
