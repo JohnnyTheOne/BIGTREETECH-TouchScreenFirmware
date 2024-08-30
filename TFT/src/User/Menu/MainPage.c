@@ -40,6 +40,7 @@ void menuMain(void)
   while (MENU_IS(menuMain))
   {
     key_num = menuKeyGetValue();
+
     switch (key_num)
     {
       case KEY_ICON_0:
@@ -77,6 +78,7 @@ void menuMain(void)
         else
         {
           strcpy(infoFile.path, "Macros");
+
           OPEN_MENU(menuCallMacro);
         }
         break;

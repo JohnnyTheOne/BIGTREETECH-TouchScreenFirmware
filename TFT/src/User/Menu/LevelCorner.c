@@ -2,14 +2,14 @@
 #include "includes.h"
 
 // correlation between KEY position and measure point index
-const uint8_t valIconIndex[LEVELING_POINT_COUNT - 1] = {KEY_ICON_4, KEY_ICON_5, KEY_ICON_1, KEY_ICON_0};
+static const uint8_t valIconIndex[LEVELING_POINT_COUNT - 1] = {KEY_ICON_4, KEY_ICON_5, KEY_ICON_1, KEY_ICON_0};
 
 // buffer current Z value measured in Level Corner = {position 1, position 2, position 3, position 4}
-float levelCornerPosition[LEVELING_POINT_COUNT - 1] = {0};
+static float levelCornerPosition[LEVELING_POINT_COUNT - 1] = {0};
 
-int16_t origLevelEdge = -1;
+static int16_t origLevelEdge = -1;
 
-uint8_t getLevelEdgeMin(void)
+static uint8_t getLevelEdgeMin(void)
 {
   // min edge limit for the probe with probe offset set in Mainboard_AckHandler.c
   int16_t maxXedge = getParameter(P_PROBE_OFFSET, AXIS_INDEX_X) + getParameter(P_HOME_OFFSET, AXIS_INDEX_X);
@@ -21,20 +21,21 @@ uint8_t getLevelEdgeMin(void)
   return MAX(maxXedge, maxYedge) + 1;
 }
 
-uint8_t getLevelEdgeDefault(void)
+static uint8_t getLevelEdgeDefault(void)
 {
   return MAX(origLevelEdge, getLevelEdgeMin());
 }
 
-void setLevelEdgeMin(void)
+static void setLevelEdgeMin(void)
 {
   infoSettings.level_edge = getLevelEdgeMin();
 }
 
 // draw values under icons
-void refreshValue(MENUITEMS * levelItems, uint8_t index)
+static void refreshValue(MENUITEMS * levelItems, uint8_t index)
 {
   sprintf((char *)levelItems->items[valIconIndex[index]].label.address, "%.4f", levelCornerPosition[index]);
+
   menuDrawIconText(&levelItems->items[valIconIndex[index]], valIconIndex[index]);
 }
 
@@ -75,6 +76,7 @@ void menuLevelCorner(void)
   while (MENU_IS(menuLevelCorner))
   {
     key_num = menuKeyGetValue();
+
     switch (key_num)
     {
       case KEY_ICON_0:
@@ -92,11 +94,11 @@ void menuLevelCorner(void)
           // wait until point probing is executed
           TASK_LOOP_WHILE(levelingGetProbedPoint() == LEVEL_NO_POINT);
 
-          levelCornerPosition[i] = levelingGetProbedZ();
-          refreshValue(&levelCornerItems, i);
-          levelingResetProbedPoint();  // reset to check for new updates
-        }
+          levelingResetProbedPoint();                     // reset to check for new updates
+          levelCornerPosition[i] = levelingGetProbedZ();  // update position
 
+          refreshValue(&levelCornerItems, i);
+        }
         break;
 
       case KEY_ICON_2:
@@ -108,7 +110,6 @@ void menuLevelCorner(void)
 
         if (curLevelEdge >= getLevelEdgeMin() && infoSettings.level_edge < getLevelEdgeMin())  // if new value is below min limit
           popupDialog(DIALOG_TYPE_QUESTION, LABEL_WARNING, LABEL_LEVEL_CORNER_INFO, LABEL_CONFIRM, LABEL_CANCEL, setLevelEdgeMin, NULL, NULL);
-
         break;
       }
 
@@ -119,6 +120,7 @@ void menuLevelCorner(void)
       case KEY_ICON_7:
         infoSettings.level_edge = origLevelEdge;  // restore original leveling edge value
         origLevelEdge = -1;
+
         CLOSE_MENU();
         break;
 

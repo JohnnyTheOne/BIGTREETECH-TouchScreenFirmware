@@ -1,10 +1,6 @@
 #include "PreheatMenu.h"
 #include "includes.h"
 
-const GUI_POINT preheat_title = {ICON_WIDTH / 2, PREHEAT_TITLE_Y };
-const GUI_POINT preheat_val_tool = {ICON_WIDTH - BYTE_WIDTH / 2, PREHEAT_TOOL_Y};
-const GUI_POINT preheat_val_bed = {ICON_WIDTH - BYTE_WIDTH / 2, PREHEAT_BED_Y};
-
 typedef enum
 {
   BOTH = 0,
@@ -13,7 +9,11 @@ typedef enum
   PREHEAT_TOOL_COUNT = 3,
 } TOOLPREHEAT;
 
-void setPreheatIcon(ITEM * item, TOOLPREHEAT nowHeater)
+static const GUI_POINT preheat_title = {ICON_WIDTH / 2, PREHEAT_TITLE_Y };
+static const GUI_POINT preheat_val_tool = {ICON_WIDTH - BYTE_WIDTH / 2, PREHEAT_TOOL_Y};
+static const GUI_POINT preheat_val_bed = {ICON_WIDTH - BYTE_WIDTH / 2, PREHEAT_BED_Y};
+
+static void setPreheatIcon(ITEM * item, TOOLPREHEAT nowHeater)
 {
   switch (nowHeater)
   {
@@ -37,10 +37,11 @@ void setPreheatIcon(ITEM * item, TOOLPREHEAT nowHeater)
   }
 }
 
-// Redraw Preheat icon details
+// redraw Preheat icon details
 void refreshPreheatIcon(PREHEAT_STORE * preheatStore, uint8_t index, bool redrawIcon)
 {
   LIVE_INFO lvIcon;
+
   lvIcon.iconIndex = ICON_PREHEAT;
   lvIcon.enabled[0] = true;
   lvIcon.enabled[1] = true;
@@ -74,8 +75,10 @@ void refreshPreheatIcon(PREHEAT_STORE * preheatStore, uint8_t index, bool redraw
 
   char temptool[5];
   char tempbed[5];
+
   sprintf(temptool, "%d", preheatStore->preheat_hotend[index]);
   sprintf(tempbed, "%d", preheatStore->preheat_bed[index]);
+
   lvIcon.lines[1].text = (uint8_t *)temptool;
   lvIcon.lines[2].text = (uint8_t *)tempbed;
 
@@ -101,13 +104,15 @@ void menuPreheat(void)
   };
 
   static TOOLPREHEAT nowHeater = BOTH;
+
   KEY_VALUES key_num = KEY_IDLE;
   PREHEAT_STORE preheatStore;
 
   setPreheatIcon(&preheatItems.items[KEY_ICON_6], nowHeater);
+
   menuDrawPage(&preheatItems);
 
-  W25Qxx_ReadBuffer((uint8_t*)&preheatStore, PREHEAT_STORE_ADDR, sizeof(PREHEAT_STORE));
+  W25Qxx_ReadBuffer((uint8_t *)&preheatStore, PREHEAT_STORE_ADDR, sizeof(PREHEAT_STORE));
 
   for (int i = 0; i < PREHEAT_COUNT; i++)
   {
@@ -150,8 +155,8 @@ void menuPreheat(void)
 
       case KEY_ICON_6:
         nowHeater = (TOOLPREHEAT)((nowHeater + 1) % PREHEAT_TOOL_COUNT);
-
         setPreheatIcon(&preheatItems.items[key_num], nowHeater);
+
         menuDrawItem(&preheatItems.items[key_num], key_num);
         break;
 

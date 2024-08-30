@@ -8,24 +8,26 @@
 #include "vfs.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
-  typedef struct
-  {
-    bool is_directory;
-    TCHAR *display_name;
-    TCHAR *file_name;
-    uint32_t timestamp;
-  } M20_LIST_ITEM;
 
-  void parseJobListResponse(const char *data);
-  void parseMacroListResponse(const char *data);
+typedef struct
+{
+  bool is_directory;
+  TCHAR * display_name;
+  TCHAR * file_name;
+  uint32_t timestamp;
+} M20_LIST_ITEM;
+
+void parseJobListResponse(const char * data);
+void parseMacroListResponse(const char * data);
+
 #ifdef __cplusplus
 }
 #endif
 
 #ifdef __cplusplus
+
 #include "JsonStreamingParser.hpp"
 #include <string.h>
 
@@ -38,7 +40,6 @@ enum RRFM20ParserState { none, type, name, date };
 
 class RRFM20Parser : public JsonListener
 {
-
 private:
   bool in_array = false;
   bool in_object = false;
@@ -53,12 +54,12 @@ public:
 
   virtual ~RRFM20Parser() {}
   inline void startDocument() {}
-  virtual void startObject();
-  virtual void endObject();
+  virtual void startObject(void);
+  virtual void endObject(void);
   inline void whitespace(char c) {}
-  virtual void endDocument();
-  virtual void key(const char *key);
-  virtual void value(const char *value);
+  virtual void endDocument(void);
+  virtual void key(const char * key);
+  virtual void value(const char * value);
 
   inline void reset()
   {
@@ -80,8 +81,8 @@ public:
     in_array = false;
     in_files = false;
   }
-
 };
+
 #endif
 
 #endif

@@ -2,7 +2,8 @@
 #include "includes.h"
 
 #define LOAD_XYZ_LABEL_INDEX(p0, dir0, p1, dir1, axis)       \
-  do {                                                       \
+  do                                                         \
+  {                                                          \
     moveItems.items[p0].label.index = LABEL_##axis##_##dir0; \
     moveItems.items[p1].label.index = LABEL_##axis##_##dir1; \
   } while (0)
@@ -10,7 +11,7 @@
 #define X_MOVE_GCODE        "G0 X%.2f F%d\n"  // X axis gcode
 #define Y_MOVE_GCODE        "G0 Y%.2f F%d\n"  // Y axis gcode
 #define Z_MOVE_GCODE        "G0 Z%.2f F%d\n"  // Z axis gcode
-#define GANTRY_REFRESH_TIME 500               // 1 seconds is 1000
+#define GANTRY_REFRESH_TIME 500               // 1 second is 1000
 
 #ifdef PORTRAIT_MODE
   #define OFFSET 0
@@ -18,11 +19,12 @@
   #define OFFSET 1
 #endif
 
-const char *const xyzMoveCmd[] = {X_MOVE_GCODE, Y_MOVE_GCODE, Z_MOVE_GCODE};
-static uint8_t item_moveLen_index = 1;
-AXIS nowAxis = X_AXIS;
+static const char * const xyzMoveCmd[] = {X_MOVE_GCODE, Y_MOVE_GCODE, Z_MOVE_GCODE};
 
-void storeMoveCmd(const AXIS xyz, const float amount)
+static uint8_t item_moveLen_index = 1;
+static AXIS nowAxis = X_AXIS;
+
+static void storeMoveCmd(const AXIS xyz, const float amount)
 {
   // if invert is true, use 'amount' multiplied by -1
   storeCmd(xyzMoveCmd[xyz], GET_BIT(infoSettings.inverted_axis, xyz) ? -amount : amount,
@@ -31,7 +33,7 @@ void storeMoveCmd(const AXIS xyz, const float amount)
   nowAxis = xyz;  // update now axis
 }
 
-void drawXYZ(void)
+static void drawXYZ(void)
 {
   if (getReminderStatus() != SYS_STATUS_IDLE || toastRunning()) return;
 
@@ -56,6 +58,7 @@ static inline void updateGantry(void)
   if (nextScreenUpdate(GANTRY_REFRESH_TIME))
   {
     coordinateQuery(0);  // query position manually for delay less than 1 second
+
     drawXYZ();
   }
 }
@@ -195,6 +198,7 @@ void menuMove(void)
     }
 
     loopProcess();
+
     updateGantry();
   }
 

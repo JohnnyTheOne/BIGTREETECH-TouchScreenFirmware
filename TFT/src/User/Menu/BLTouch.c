@@ -42,6 +42,7 @@ void menuBLTouch(void)
   while (MENU_IS(menuBLTouch))
   {
     key_num = menuKeyGetValue();
+
     switch (key_num)
     {
       case KEY_ICON_0:
@@ -81,8 +82,10 @@ void menuBLTouch(void)
     if (bltHSmode != hsModeOld)
     {
       hsModeOld = bltHSmode;
+
       BLTouchItems.items[5].icon = (bltHSmode == HS_ON) ? ICON_FAST_SPEED : ICON_SLOW_SPEED;
       BLTouchItems.items[5].label.index = (bltHSmode == HS_ON) ? LABEL_HS_ON : LABEL_HS_OFF;
+
       menuDrawItem(&BLTouchItems.items[5], 5);
     }
 

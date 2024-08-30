@@ -8,13 +8,13 @@ typedef enum
   MKEY_IDLE = IDLE_TOUCH,
 } MKEY_VALUES;
 
-const GUI_RECT rect_of_mode[MODE_COUNT] = {
+static const GUI_RECT rect_of_mode[MODE_COUNT] = {
   // 2 select icon
   {1 * SPACE_SELEX + 0 * ICON_WIDTH, SPACE_SELEY, 1 * SPACE_SELEX + 1 * ICON_WIDTH, SPACE_SELEY + ICON_HEIGHT},
   {3 * SPACE_SELEX + 1 * ICON_WIDTH, SPACE_SELEY, 3 * SPACE_SELEX + 2 * ICON_WIDTH, SPACE_SELEY + ICON_HEIGHT},
 };
 
-const uint8_t icon_mode [MODE_COUNT] = {
+static const uint8_t icon_mode [MODE_COUNT] = {
   ICON_MARLIN_MODE,
   ICON_TOUCH_MODE,
 };
@@ -27,8 +27,8 @@ static inline void drawModeIcon(void)
   }
 
   const GUI_RECT mode_title_rect[MODE_COUNT] = {
-    {0,           rect_of_mode[0].y1 + BYTE_HEIGHT / 2, text_startx, rect_of_mode[0].y1 + BYTE_HEIGHT / 2 + BYTE_HEIGHT},
-    {text_startx, rect_of_mode[0].y1 + BYTE_HEIGHT / 2, LCD_WIDTH,   rect_of_mode[0].y1 + BYTE_HEIGHT / 2 + BYTE_HEIGHT},
+    {0,           rect_of_mode[0].y1 + BYTE_HEIGHT / 2, TEXT_STARTX, rect_of_mode[0].y1 + BYTE_HEIGHT / 2 + BYTE_HEIGHT},
+    {TEXT_STARTX, rect_of_mode[0].y1 + BYTE_HEIGHT / 2, LCD_WIDTH,   rect_of_mode[0].y1 + BYTE_HEIGHT / 2 + BYTE_HEIGHT},
   };
 
   GUI_RestoreColorDefault();
@@ -41,7 +41,7 @@ static inline MKEY_VALUES MKeyGetValue(void)
   return (MKEY_VALUES)KEY_GetValue(COUNT(rect_of_mode), rect_of_mode);
 }
 
-void drawSelectedMode(int8_t nowMode)
+static void drawSelectedMode(int8_t nowMode)
 {
   const uint8_t border_off = 4;
 
@@ -59,6 +59,7 @@ void drawSelectedMode(int8_t nowMode)
 void menuMode(void)
 {
   int8_t nowMode = GET_BIT(infoSettings.mode, 0);
+
   TS_ReDrawIcon = NULL;  // disable icon redraw callback function
 
   GUI_Clear(infoSettings.bg_color);
@@ -66,13 +67,9 @@ void menuMode(void)
   drawSelectedMode(nowMode);
 
   #if LCD_ENCODER_SUPPORT
-    while (!XPT2046_Read_Pen() || LCD_Enc_ReadBtn(LCD_ENC_BUTTON_INTERVAL))  // wait for button release
-    {
-    }
+    while (!XPT2046_Read_Pen() || LCD_Enc_ReadBtn(LCD_ENC_BUTTON_INTERVAL));  // wait for button release
   #else
-    while (!XPT2046_Read_Pen())  // wait for touch release
-    {
-    }
+    while (!XPT2046_Read_Pen());  // wait for touch release
   #endif
 
   while (MENU_IS(menuMode))
@@ -82,6 +79,7 @@ void menuMode(void)
     if (key_num == MKEY_0 || key_num == MKEY_1)
     {
       nowMode = key_num;
+
       break;
     }
 
@@ -89,8 +87,9 @@ void menuMode(void)
       if (encoderPosition)
       {
         nowMode = NOBEYOND(0, nowMode + encoderPosition, MODE_COUNT - 1);
-        drawSelectedMode(nowMode);
         encoderPosition = 0;
+
+        drawSelectedMode(nowMode);
       }
 
       if (LCD_Enc_ReadBtn(LCD_ENC_BUTTON_INTERVAL))
@@ -100,14 +99,10 @@ void menuMode(void)
     #endif
 
     if (infoSettings.mode == MODE_SERIAL_TSC || infoSettings.serial_always_on == 1)
-    {
       loopBackEnd();
-    }
     #ifdef LCD_LED_PWM_CHANNEL  // LCD_CheckDimming() is invoked by loopBackEnd(), so we guarantee it is invoked only once
       else
-      {
         LCD_CheckDimming();
-      }
     #endif
   }
 

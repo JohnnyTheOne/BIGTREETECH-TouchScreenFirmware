@@ -111,11 +111,11 @@ typedef enum
 #define CURSOR_END_Y    ((KB_START_ROW + KB_ROW_COUNT) * KEY_HEIGHT)
 
 // gcode command draw area inside text box
-const GUI_RECT textBoxRect = {             0 + TEXTBOX_INSET, (COMMAND_START_ROW + 0) * CTRL_HEIGHT + TEXTBOX_INSET,
-                              3 * CTRL_WIDTH - TEXTBOX_INSET, (COMMAND_START_ROW + 1) * CTRL_HEIGHT - TEXTBOX_INSET};
+static const GUI_RECT textBoxRect = {             0 + TEXTBOX_INSET, (COMMAND_START_ROW + 0) * CTRL_HEIGHT + TEXTBOX_INSET,
+                                     3 * CTRL_WIDTH - TEXTBOX_INSET, (COMMAND_START_ROW + 1) * CTRL_HEIGHT - TEXTBOX_INSET};
 
 // keyboard rectangles
-const GUI_RECT editorKeyRect[KEY_COUNT] = {
+static const GUI_RECT editorKeyRect[KEY_COUNT] = {
   // row text box + send button
   {0 * CTRL_WIDTH + TEXTBOX_INSET + TEXTBOX_BUTTON_INSET, (COMMAND_START_ROW + 0) * CTRL_HEIGHT + TEXTBOX_INSET + TEXTBOX_BUTTON_INSET,
    1 * CTRL_WIDTH +                 TEXTBOX_BUTTON_INSET, (COMMAND_START_ROW + 1) * CTRL_HEIGHT - TEXTBOX_INSET - TEXTBOX_BUTTON_INSET},  // Prev gcode (top row)
@@ -147,13 +147,13 @@ const GUI_RECT editorKeyRect[KEY_COUNT] = {
     {9 * KEY_WIDTH, (KB_START_ROW + 0) * KEY_HEIGHT, 10 * KEY_WIDTH, (KB_START_ROW + 1) * KEY_HEIGHT},
   #endif
 
-    // row 2
-    {0 * KEY_WIDTH, (KB_START_ROW + 1) * KEY_HEIGHT, 1 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT},
-    {1 * KEY_WIDTH, (KB_START_ROW + 1) * KEY_HEIGHT, 2 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT},
-    {2 * KEY_WIDTH, (KB_START_ROW + 1) * KEY_HEIGHT, 3 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT},
-    {3 * KEY_WIDTH, (KB_START_ROW + 1) * KEY_HEIGHT, 4 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT},
-    {4 * KEY_WIDTH, (KB_START_ROW + 1) * KEY_HEIGHT, 5 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT},
-    {5 * KEY_WIDTH, (KB_START_ROW + 1) * KEY_HEIGHT, 6 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT},
+  // row 2
+  {0 * KEY_WIDTH, (KB_START_ROW + 1) * KEY_HEIGHT, 1 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT},
+  {1 * KEY_WIDTH, (KB_START_ROW + 1) * KEY_HEIGHT, 2 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT},
+  {2 * KEY_WIDTH, (KB_START_ROW + 1) * KEY_HEIGHT, 3 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT},
+  {3 * KEY_WIDTH, (KB_START_ROW + 1) * KEY_HEIGHT, 4 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT},
+  {4 * KEY_WIDTH, (KB_START_ROW + 1) * KEY_HEIGHT, 5 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT},
+  {5 * KEY_WIDTH, (KB_START_ROW + 1) * KEY_HEIGHT, 6 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT},
   #if KB_COL_COUNT > LAYOUT_1_COL_COUNT
     {6 * KEY_WIDTH, (KB_START_ROW + 1) * KEY_HEIGHT, 7 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT},
   #endif
@@ -163,13 +163,13 @@ const GUI_RECT editorKeyRect[KEY_COUNT] = {
     {9 * KEY_WIDTH, (KB_START_ROW + 1) * KEY_HEIGHT, 10 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT},
   #endif
 
-    // row 3
-    {0 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT, 1 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT},
-    {1 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT, 2 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT},
-    {2 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT, 3 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT},
-    {3 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT, 4 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT},
-    {4 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT, 5 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT},
-    {5 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT, 6 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT},
+  // row 3
+  {0 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT, 1 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT},
+  {1 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT, 2 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT},
+  {2 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT, 3 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT},
+  {3 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT, 4 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT},
+  {4 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT, 5 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT},
+  {5 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT, 6 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT},
   #if KB_COL_COUNT > LAYOUT_1_COL_COUNT
     {6 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT, 7 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT},
   #endif
@@ -179,13 +179,13 @@ const GUI_RECT editorKeyRect[KEY_COUNT] = {
     {9 * KEY_WIDTH, (KB_START_ROW + 2) * KEY_HEIGHT, 10 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT},
   #endif
 
-    // row 4
-    {0 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT, 1 * KEY_WIDTH, (KB_START_ROW + 4) * KEY_HEIGHT},
-    {1 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT, 2 * KEY_WIDTH, (KB_START_ROW + 4) * KEY_HEIGHT},
-    {2 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT, 3 * KEY_WIDTH, (KB_START_ROW + 4) * KEY_HEIGHT},
-    {3 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT, 4 * KEY_WIDTH, (KB_START_ROW + 4) * KEY_HEIGHT},
-    {4 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT, 5 * KEY_WIDTH, (KB_START_ROW + 4) * KEY_HEIGHT},
-    {5 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT, 6 * KEY_WIDTH, (KB_START_ROW + 4) * KEY_HEIGHT},
+  // row 4
+  {0 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT, 1 * KEY_WIDTH, (KB_START_ROW + 4) * KEY_HEIGHT},
+  {1 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT, 2 * KEY_WIDTH, (KB_START_ROW + 4) * KEY_HEIGHT},
+  {2 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT, 3 * KEY_WIDTH, (KB_START_ROW + 4) * KEY_HEIGHT},
+  {3 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT, 4 * KEY_WIDTH, (KB_START_ROW + 4) * KEY_HEIGHT},
+  {4 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT, 5 * KEY_WIDTH, (KB_START_ROW + 4) * KEY_HEIGHT},
+  {5 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT, 6 * KEY_WIDTH, (KB_START_ROW + 4) * KEY_HEIGHT},
   #if KB_COL_COUNT > LAYOUT_1_COL_COUNT
     {6 * KEY_WIDTH, (KB_START_ROW + 3) * KEY_HEIGHT, 7 * KEY_WIDTH, (KB_START_ROW + 4) * KEY_HEIGHT},
   #endif
@@ -223,29 +223,29 @@ const GUI_RECT editorKeyRect[KEY_COUNT] = {
 };
 
 // area rectangles
-const GUI_RECT editorAreaRect[3] = {
+static const GUI_RECT editorAreaRect[3] = {
   {0, COMMAND_START_ROW * CTRL_HEIGHT, LCD_WIDTH, ROW_HEIGHT},                // text box + send area
   {0, ROW_HEIGHT,                      LCD_WIDTH, LCD_HEIGHT - CTRL_HEIGHT},  // keyboard area
   {0, CTRL_START_ROW * CTRL_HEIGHT,    LCD_WIDTH, LCD_HEIGHT}                 // control bar area
 };
 
-const GUI_RECT terminalKeyRect[TERM_KEY_COUNT] = {
+static const GUI_RECT terminalKeyRect[TERM_KEY_COUNT] = {
   {1 * TERMINAL_CTRL_WIDTH, LCD_HEIGHT - CTRL_HEIGHT, 2 * TERMINAL_CTRL_WIDTH, LCD_HEIGHT},  // page down
   {2 * TERMINAL_CTRL_WIDTH, LCD_HEIGHT - CTRL_HEIGHT, 3 * TERMINAL_CTRL_WIDTH, LCD_HEIGHT},  // page up
   {3 * TERMINAL_CTRL_WIDTH, LCD_HEIGHT - CTRL_HEIGHT, 4 * TERMINAL_CTRL_WIDTH, LCD_HEIGHT},  // ACK
   {4 * TERMINAL_CTRL_WIDTH, LCD_HEIGHT - CTRL_HEIGHT, 5 * TERMINAL_CTRL_WIDTH, LCD_HEIGHT},  // Back
 };
 
-const GUI_RECT terminalPageRect = {
+static const GUI_RECT terminalPageRect = {
   0 * TERMINAL_CTRL_WIDTH, LCD_HEIGHT - CTRL_HEIGHT, 1 * TERMINAL_CTRL_WIDTH, LCD_HEIGHT};  // page number
 
-const GUI_RECT terminalAreaRect[2] = {
+static const GUI_RECT terminalAreaRect[2] = {
   {0,            0, LCD_WIDTH, CURSOR_END_Y},  // terminal area
   {0, CURSOR_END_Y, LCD_WIDTH,   LCD_HEIGHT},  // control area
 };
 
 // keyboard keys for first layout
-const char * const gcodeKey123[KEY_COUNT] = {
+static const char * const gcodeKey123[KEY_COUNT] = {
   "Prev", "Next", "Clear", "Send", "ABC", "Space", "Del", "Back",
   #if KB_COL_COUNT == LAYOUT_1_COL_COUNT
     "1", "2", "3", "M", "G", "T",
@@ -268,7 +268,7 @@ const char * const gcodeKey123[KEY_COUNT] = {
 };
 
 // keyboard keys for second layout
-const char * const gcodeKeyABC[KEY_COUNT] = {
+static const char * const gcodeKeyABC[KEY_COUNT] = {
   "Prev", "Next", "Clear", "Send", "123", "Space", "Del", "Back",
   #if KB_COL_COUNT == LAYOUT_1_COL_COUNT
     "A", "B", "C", "D", "H", "I",
@@ -306,20 +306,20 @@ const char * const gcodeKeyABC[KEY_COUNT] = {
   #endif
 };
 
-const uint16_t fontSrcColor[3][3] = {
+static const uint16_t fontSrcColor[3][3] = {
   // Gcode                  ACK                    Background
   {COLORSCHEME1_TERM_GCODE, COLORSCHEME1_TERM_ACK, COLORSCHEME1_TERM_BACK},  // Material Dark
   {COLORSCHEME2_TERM_GCODE, COLORSCHEME2_TERM_ACK, COLORSCHEME2_TERM_BACK},  // Material Light
   {COLORSCHEME3_TERM_GCODE, COLORSCHEME3_TERM_ACK, COLORSCHEME3_TERM_BACK},  // High Contrast
 };
 
-KEYBOARD_DATA * keyboardData;
-TERMINAL_DATA * terminalData;
-char * terminalBuf;
-TERMINAL_WINDOW curView = KEYBOARD_VIEW;
+static KEYBOARD_DATA * keyboardData;
+static TERMINAL_DATA * terminalData;
+static char * terminalBuf;
+static TERMINAL_WINDOW curView = KEYBOARD_VIEW;
 
-bool numpad =
-  #if defined(KB_TYPE_QWERTY)
+static bool numpad =
+  #ifdef KB_TYPE_QWERTY
     false;  // show qwerty as default for larger
   #else
     true;
@@ -563,6 +563,7 @@ static inline void menuKeyboardView(void)
       break;
 
     key_num = menuKeyGetValue();
+
     switch (key_num)
     {
       case GKEY_IDLE:
@@ -598,14 +599,13 @@ static inline void menuKeyboardView(void)
 
       case GKEY_ABC_123:
         TOGGLE_BIT(numpad, 0);
+
         drawKeyboard();
         break;
 
       case GKEY_SPACE:
         if (nowIndex > 0 && nowIndex < CMD_MAX_SIZE - 2)  // -2 to leave space for '\n' and '\0' char
-        {
           gcodeBuf[nowIndex++] = ' ';
-        }
         break;
 
       case GKEY_DEL:
@@ -629,6 +629,7 @@ static inline void menuKeyboardView(void)
     {
       lastIndex = nowIndex;  // update gcode size
       gcodeBuf[nowIndex] = '\0';
+
       drawGcodeText(gcodeBuf);
 
       if (*gcodeBuf == '\0')  // text area empty
@@ -694,7 +695,7 @@ void terminalCache(const char * stream, uint16_t streamLen, SERIAL_PORT_INDEX po
 }
 
 // reverse lookup for source identifier
-TERMINAL_SRC getLastSrc(char * ptr)
+static TERMINAL_SRC getLastSrc(char * ptr)
 {
   TERMINAL_SRC lastSrc = SRC_TERMINAL_COUNT;
   char * endPtr = (ptr + 1);
@@ -709,6 +710,7 @@ TERMINAL_SRC getLastSrc(char * ptr)
     if (ptr[0] == 0x5 || ptr[0] == 0x6)
     {
       lastSrc = ptr[0] - 0x5;
+
       break;
     }
 
@@ -784,7 +786,7 @@ static inline void terminalDrawButton(uint8_t index, uint8_t isPressed)
   #endif  // KEYBOARD_MATERIAL_THEME
 }
 
-uint8_t terminalUpdatePageCount(void)
+static uint8_t terminalUpdatePageCount(void)
 {
   if (terminalData->pageTail >= terminalData->pageHead)
     terminalData->pageCount = abs(terminalData->pageTail - terminalData->pageHead);
@@ -828,7 +830,7 @@ static inline void terminalDrawMenu(void)
   terminalDrawPageNumber();
 }
 
-void menuTerminalView(void)
+static void menuTerminalView(void)
 {
   #define CURSOR_START_X (terminalAreaRect[0].x0 + CURSOR_H_OFFSET)
 
@@ -850,6 +852,7 @@ void menuTerminalView(void)
       break;
 
     key_num = menuKeyGetValue();
+
     switch (key_num)
     {
       case TERM_PAGE_UP:  // page up
@@ -864,6 +867,7 @@ void menuTerminalView(void)
 
       case TERM_TOGGLE_ACK:  // toggle ack in terminal
         TOGGLE_BIT(infoSettings.terminal_ack, 0);
+
         terminalDrawButton(TERM_TOGGLE_ACK, false);
         break;
 
@@ -909,6 +913,7 @@ void menuTerminalView(void)
           // move to next first page and move on top of the loop and check again (with this block of code)
           terminalData->pageHead = (terminalData->pageHead + 1) % terminalData->maxPageCount;
           terminalUpdatePageCount();  // update page count
+
           break;
         }
       }
@@ -919,6 +924,7 @@ void menuTerminalView(void)
         // set index to first page in page range and move on top of the loop to select the new page
         // to display (with block of code "if (oldPageIndex != terminalData->pageIndex)")
         terminalData->pageIndex = terminalData->pageCount;
+
         break;
       }
 
@@ -932,6 +938,7 @@ void menuTerminalView(void)
       if (info.bytes == 0)  // if '\0' is found, move to next byte in the buffer (avoiding an infinite loop due to info.bytes set to 0)
       {
         bufIndex = (bufIndex + 1) % terminalData->bufSize;
+
         break;
       }
 

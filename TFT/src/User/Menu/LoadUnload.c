@@ -10,7 +10,7 @@ typedef enum
   UNLOAD_STARTED,
 } CMD_TYPE;
 
-const MENUITEMS loadUnloadItems = {
+static const MENUITEMS loadUnloadItems = {
   // title
   LABEL_LOAD_UNLOAD,
   // icon                          label
@@ -27,7 +27,7 @@ const MENUITEMS loadUnloadItems = {
 };
 
 static uint8_t tool_index = NOZZLE0;
-CMD_TYPE lastCmd = NONE;
+static CMD_TYPE lastCmd = NONE;
 
 void menuLoadUnload(void)
 {
@@ -168,7 +168,7 @@ void menuLoadUnload(void)
     loopProcess();
   }
 
-  if (eAxisBackup.handled == false)  // the user exited from menu (not any other process/popup/etc)
+  if (eAxisBackup.handled == false)                       // the user exited from menu (not any other process/popup/etc)
     mustStoreCmd("G92 E%.5f\n", eAxisBackup.coordinate);  // reset E axis position in Marlin to pre - load/unload state
 
   // set slow update time if not waiting for target temperature

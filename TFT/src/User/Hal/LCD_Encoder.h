@@ -6,8 +6,8 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
-#include <stdint.h>
-#include "variants.h"  // for ENC_ACTIVE_SIGNAL, LCD_ENCODER_SUPPORT etc...
+#include <stdint.h>    // for uint8_t etc.
+#include "variants.h"  // for ENC_ACTIVE_SIGNAL, LCD_ENCODER_SUPPORT etc.
 #include "menu.h"
 
 #if ENC_ACTIVE_SIGNAL
@@ -24,7 +24,7 @@ extern "C" {
   void LCD_Enc_SendPulse(uint8_t num);      // send a pulse to the encoder
   bool LCD_Enc_CheckState(void);
   void LCD_Enc_CheckSteps(void);
-  KEY_VALUES LCD_Enc_KeyValue(void);  // return a value from provided variables based on encoder position
+  KEY_VALUES LCD_Enc_KeyValue(void);        // return a value from provided variables based on encoder position
 #endif
 
 #ifdef __cplusplus

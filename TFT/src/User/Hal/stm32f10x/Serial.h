@@ -2,8 +2,8 @@
 #define _SERIAL_H_
 
 #include <stdint.h>
-#include "variants.h"  // for uint32_t etc...
-#include "uart.h"
+#include "variants.h"  // for USART_TypeDef etc.
+#include "uart.h"      // for _UART_CNT etc.
 
 // comment out this line to use TX interrupt based serial writing instead of TX DMA based serial writing
 #define TX_DMA_WRITE
@@ -24,9 +24,9 @@ typedef struct
   uint32_t dma_rcc;
   DMA_TypeDef * dma_controller;
   DMA_Channel_TypeDef * dma_channelRX;
-#ifdef TX_DMA_WRITE
-  DMA_Channel_TypeDef * dma_channelTX;
-#endif
+  #ifdef TX_DMA_WRITE
+    DMA_Channel_TypeDef * dma_channelTX;
+  #endif
 } SERIAL_CFG;
 
 extern DMA_CIRCULAR_BUFFER dmaL1DataRX[_UART_CNT];

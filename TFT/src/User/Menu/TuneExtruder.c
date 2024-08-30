@@ -3,15 +3,15 @@
 
 #define ITEM_TUNE_EXTRUDER_LEN_NUM 4
 
-#define EXTRUDE_LEN 100.0f   // in mm
-#define REMAINING_LEN 20.0f  // in mm
+#define EXTRUDE_LEN   100.0f  // in mm
+#define REMAINING_LEN  20.0f  // in mm
 
 static uint8_t tool_index = NOZZLE0;
 static uint8_t degreeSteps_index = 1;
 static uint8_t extStep_index = 0;
 static bool loadRequested = false;
 
-void showNewESteps(const float measured_length, const float old_esteps, float * new_esteps)
+static void showNewESteps(const float measured_length, const float old_esteps, float * new_esteps)
 {
   char tempstr[20];
 
@@ -23,14 +23,14 @@ void showNewESteps(const float measured_length, const float old_esteps, float * 
   sprintf(tempstr, "  %0.2fmm  ", measured_length);
   GUI_DispStringInPrect(&exhibitRect, (uint8_t *)tempstr);
 
-  sprintf(tempstr, (char*)textSelect(LABEL_TUNE_EXT_OLD_ESTEP), old_esteps);
+  sprintf(tempstr, (char *)textSelect(LABEL_TUNE_EXT_OLD_ESTEP), old_esteps);
   GUI_DispString(exhibitRect.x0, exhibitRect.y1 - BYTE_HEIGHT, (uint8_t *)tempstr);
 
-  sprintf(tempstr, (char*)textSelect(LABEL_TUNE_EXT_NEW_ESTEP), *new_esteps);
+  sprintf(tempstr, (char *)textSelect(LABEL_TUNE_EXT_NEW_ESTEP), *new_esteps);
   GUI_DispString(exhibitRect.x0,  exhibitRect.y1, (uint8_t *)tempstr);
 }
 
-void menuNewExtruderESteps(void)
+static void menuNewExtruderESteps(void)
 {
   // extruder steps are not correct. Ask user for the amount that's extruded.
   // Automaticaly calculate new steps/mm when changing the measured distance.
@@ -84,8 +84,8 @@ void menuNewExtruderESteps(void)
         sendParameterCmd(P_STEPS_PER_MM, AXIS_INDEX_E0, new_esteps);
 
         char tempMsg[120];
-
         LABELCHAR(tempStr, LABEL_TUNE_EXT_ESTEPS_SAVED);
+
         sprintf(tempMsg, tempStr, new_esteps);
 
         popupReminder(DIALOG_TYPE_QUESTION, newExtruderESteps.title.index, (uint8_t *) tempMsg);
@@ -114,6 +114,7 @@ void menuNewExtruderESteps(void)
     if (now != measured_length)
     {
       now = measured_length;
+
       showNewESteps(measured_length, old_esteps, &new_esteps);
     }
 
@@ -253,8 +254,8 @@ void menuTuneExtruder(void)
           loadRequested = false;
 
           char tempMsg[120];
-
           LABELCHAR(tempStr, LABEL_TUNE_EXT_MARK120MM);
+
           sprintf(tempMsg, tempStr, textSelect(LABEL_EXTRUDE));
 
           popupDialog(DIALOG_TYPE_QUESTION, tuneExtruderItems.title.index, (uint8_t *) tempMsg, LABEL_EXTRUDE, LABEL_CANCEL, extrudeFilament, NULL, NULL);

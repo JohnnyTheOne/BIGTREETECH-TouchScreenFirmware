@@ -2,10 +2,10 @@
 #include "includes.h"
 
 static uint8_t curUnit_index = 0;
-uint8_t mblPoint = 0;
-bool mblRunning = false;
+static uint8_t mblPoint = 0;
+static bool mblRunning = false;
 
-// Start MBL
+// start MBL
 static inline void mblStart(void)
 {
   mblRunning = true;
@@ -23,7 +23,7 @@ static inline void mblStart(void)
   probeHeightRelative();  // set relative position mode
 }
 
-// Stop MBL
+// stop MBL
 static inline void mblStop(void)
 {
   mblRunning = false;
@@ -37,7 +37,7 @@ static inline void mblStop(void)
   probeHeightDisable();  // restore original software endstops state and ABL state
 }
 
-// Abort MBL
+// abort MBL
 static inline void mblAbort(void)
 {
   // MBL gcode sequence stop
@@ -80,8 +80,8 @@ void mblUpdateStatus(bool succeeded)
   }
 }
 
-// Show an error notification
-void mblNotifyError(bool isStarted)
+// show an error notification
+static void mblNotifyError(bool isStarted)
 {
   LABELCHAR(tempMsg, LABEL_MBL);
 
@@ -90,7 +90,7 @@ void mblNotifyError(bool isStarted)
   addToast(DIALOG_TYPE_ERROR, tempMsg);
 }
 
-void mblDraw(COORDINATE *val)
+static void mblDraw(COORDINATE * val)
 {
   char tempstr[24], tempstr2[24], tempstr3[24];
 
@@ -204,7 +204,6 @@ void menuMBL(void)
       // change unit
       case KEY_ICON_4:
         curUnit_index = (curUnit_index + 1) % ITEM_FINE_MOVE_LEN_NUM;
-
         mblItems.items[key_num] = itemMoveLen[curUnit_index];
 
         menuDrawItem(&mblItems.items[key_num], key_num);
@@ -257,11 +256,11 @@ void menuMBL(void)
     if (memcmp(&now, &curValue, sizeof(COORDINATE)))
     {
       coordinateGetAllActual(&now);
+
       mblDraw(&now);
     }
 
     probeHeightQueryCoord();
-
     loopProcess();
   }
 }

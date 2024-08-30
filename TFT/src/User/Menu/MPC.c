@@ -4,7 +4,7 @@
 #define DEF_HEATER_POWER      40
 #define DEF_FIL_HEAT_CAPACITY 0.0046f
 #define MPC_PARAM_ITEMS_COUNT 3
-#define MPC_METHOD_COUNT 3
+#define MPC_METHOD_COUNT      3
 
 typedef struct
 {
@@ -13,19 +13,19 @@ typedef struct
   enum {AUTOMATIC = 0, DIFFERENTIAL, ASYMPTOMATIC} method;
 } MPC_Parameter;
 
-static MPC_Parameter mpcParameter[MAX_HOTEND_COUNT] = {0};
-
-static struct
+typedef struct
 {
   MPC_STATUS status;
   MPC_RESULT result;
-} mpcTuning = {DONE, NO_RESULT};
+} MPC_Tuning;
 
+static MPC_Parameter mpcParameter[MAX_HOTEND_COUNT] = {0};
+static MPC_Tuning mpcTuning = {DONE, NO_RESULT};
 static uint8_t curTool_index = NOZZLE0;
-char * mpcMethod_label[] = {"Auto", "Diff.", "Asym."};
+static char * mpcMethod_label[] = {"Auto", "Diff.", "Asym."};
 
 // 1 title, ITEM_PER_PAGE items (icon + label)
-const MENUITEMS mpcItems = {
+static const MENUITEMS mpcItems = {
   // title
   LABEL_MPC_TITLE,
   // icon                          label
@@ -41,7 +41,7 @@ const MENUITEMS mpcItems = {
   }
 };
 
-void mpcDisplayValues(void)
+static void mpcDisplayValues(void)
 {
   char tmpStr[15];
   MPC_Parameter * parameter = &mpcParameter[curTool_index];
@@ -60,7 +60,7 @@ void mpcDisplayValues(void)
   GUI_DispString(exhibitRect.x0, exhibitRect.y0 + 4 * BYTE_HEIGHT, (uint8_t *)tmpStr);
 }
 
-void menuSetMpcParam(void)
+static void menuSetMpcParam(void)
 {
   LABEL title = {LABEL_PARAMETER_SETTINGS};
   uint16_t curIndex = KEY_IDLE;
@@ -100,6 +100,7 @@ void menuSetMpcParam(void)
 
         parameter->heater_power = tmpVal;
         setDynamicValue(0, parameter->heater_power);
+
         listViewRefreshMenu();
         break;
       }
@@ -120,6 +121,7 @@ void menuSetMpcParam(void)
 
         parameter->fil_heat_capcity = tmpVal;
         setDynamicValue(1, parameter->fil_heat_capcity);
+
         listViewRefreshMenu();
         break;
       }
@@ -127,12 +129,14 @@ void menuSetMpcParam(void)
       case KEY_ICON_2:
         parameter->method = (parameter->method + 1) % MPC_METHOD_COUNT;
         setDynamicTextValue(2, mpcMethod_label[parameter->method]);
+
         listViewRefreshItem(curIndex);
         break;
 
       case KEY_BACK:
         mustStoreCmd("M306 E%d P%d H%.5f\n", curTool_index, parameter->heater_power, parameter->fil_heat_capcity);
-        // CLOSE_MENU();  // commented because listViewCreate() handles it
+
+        //CLOSE_MENU();  // commented because listViewCreate() handles it
         break;
     }
 
@@ -140,7 +144,7 @@ void menuSetMpcParam(void)
   }
 }
 
-void mpcStart(void)
+static void mpcStart(void)
 {
   if (heatSetTool(curTool_index))
   {
@@ -194,6 +198,7 @@ void menuMPC(void)
     if (mpcTuning.status == DONE)
     {
       key_num = menuKeyGetValue();
+
       switch (key_num)
       {
         case KEY_ICON_4:
@@ -261,7 +266,6 @@ void menuMPC(void)
             {
               popupReminder(DIALOG_TYPE_SUCCESS, LABEL_MPC_TITLE, (uint8_t *) tempMsg);
             }
-
             break;
           }
 
@@ -270,7 +274,6 @@ void menuMPC(void)
             BUZZER_PLAY(SOUND_ERROR);
 
             popupReminder(DIALOG_TYPE_ERROR, LABEL_MPC_TITLE, LABEL_PROCESS_ABORTED);
-
             break;
           }
 

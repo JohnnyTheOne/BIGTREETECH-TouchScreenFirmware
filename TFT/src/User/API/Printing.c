@@ -21,15 +21,15 @@ typedef struct
   PAUSE_TYPE pauseType;       // pause type trigged by different sources and gcodes like M0 & M600
 } PRINTING;
 
-PRINTING infoPrinting = {0};
-PRINT_SUMMARY infoPrintSummary = {.name[0] = '\0', 0, 0, 0, 0, false};
-
+static PRINTING infoPrinting = {0};
 static bool extrusionDuringPause = false;  // flag for extrusion during Print -> Pause
 static bool filamentRunoutAlarm = false;
 static float lastEPos = 0;                 // used only to update stats in infoPrintSummary
 
 static uint32_t nextUpdateTime = 0;
 static bool sendingWaiting = false;
+
+PRINT_SUMMARY infoPrintSummary = {.name[0] = '\0', 0, 0, 0, 0, false};
 
 void setExtrusionDuringPause(bool extruded)
 {
@@ -51,7 +51,7 @@ bool getRunoutAlarm(void)
   return filamentRunoutAlarm;
 }
 
-void clearQueueAndMore(void)
+static void clearQueueAndMore(void)
 {
   clearCmdQueue();
   resetPendingQueries();
@@ -76,7 +76,7 @@ void resumeAndContinue(void)
   sendEmergencyCmd("M876 S1\n");
 }
 
-void abortAndTerminate(void)
+static void abortAndTerminate(void)
 {
   clearQueueAndMore();
 
@@ -93,7 +93,7 @@ void abortAndTerminate(void)
   }
 }
 
-void waitForAbort(void)
+static void waitForAbort(void)
 {
   // M108 is sent to Marlin because consecutive blocking operations such as heating bed/extruder may defer processing of other gcodes.
   // If there's any ongoing blocking command, "M108" will take that out from the closed loop and a response will be received
@@ -164,7 +164,7 @@ void parsePrintRemainingTime(char * buffer)
   setPrintRemainingTime(((int32_t) (hour) * 3600) + ((int32_t) (min) * 60) + (int32_t) (sec));
 }
 
-uint32_t getPrintRemainingTime()
+uint32_t getPrintRemainingTime(void)
 {
   return infoPrinting.remainingTime;
 }
@@ -174,7 +174,7 @@ void setPrintLayerNumber(uint16_t layerNumber)
   infoPrinting.layerNumber = layerNumber;
 }
 
-uint16_t getPrintLayerNumber()
+uint16_t getPrintLayerNumber(void)
 {
   return infoPrinting.layerNumber;
 }
@@ -184,7 +184,7 @@ void setPrintLayerCount(uint16_t layerCount)
   infoPrinting.layerCount = layerCount;
 }
 
-uint16_t getPrintLayerCount()
+uint16_t getPrintLayerCount(void)
 {
   return infoPrinting.layerCount;
 }
@@ -230,7 +230,6 @@ uint8_t updatePrintProgress(void)
         infoPrinting.progress = 100;
       else
         infoPrinting.progress = (uint8_t)((float)(infoPrinting.cur - infoPrinting.fileOffset) / (infoPrinting.size - infoPrinting.fileOffset) * 100);
-
       break;
 
     case PROG_RRF:
@@ -260,9 +259,9 @@ bool getPrintRunout(void)
   return infoPrinting.runout;
 }
 
-// Shut down menu, when the hotend temperature is higher than "AUTO_SHUT_DOWN_MAXTEMP"
+// shut down menu, when the hotend temperature is higher than "AUTO_SHUT_DOWN_MAXTEMP"
 // wait for cool down, in the meantime, you can shut down by force
-void shutdown(void)
+static void shutdown(void)
 {
   for (uint8_t i = 0; i < infoSettings.fan_count; i++)
   {
@@ -273,7 +272,7 @@ void shutdown(void)
   popupReminder(DIALOG_TYPE_INFO, LABEL_SHUT_DOWN, LABEL_SHUTTING_DOWN);
 }
 
-void shutdownLoop(void)
+static void shutdownLoop(void)
 {
   for (uint8_t i = NOZZLE0; i < infoSettings.hotend_count; i++)
   {
@@ -284,11 +283,11 @@ void shutdownLoop(void)
   shutdown();
 }
 
-void shutdownStart(void)
+static void shutdownStart(void)
 {
   char tempstr[75];
-
   LABELCHAR(tempbody, LABEL_WAIT_TEMP_SHUT_DOWN);
+
   sprintf(tempstr, tempbody, infoSettings.auto_shutdown_temp);
 
   for (uint8_t i = 0; i < infoSettings.fan_count; i++)
@@ -299,7 +298,7 @@ void shutdownStart(void)
   popupDialog(DIALOG_TYPE_INFO, LABEL_SHUT_DOWN, (uint8_t *)tempstr, LABEL_FORCE_SHUT_DOWN, LABEL_CANCEL, shutdown, NULL, shutdownLoop);
 }
 
-void initPrintSummary(void)
+static void initPrintSummary(void)
 {
   lastEPos = coordinateGetAxis(E_AXIS);
   infoPrintSummary = (PRINT_SUMMARY){.name[0] = '\0', 0, 0, 0, 0, false};
@@ -308,7 +307,7 @@ void initPrintSummary(void)
   strncpy_no_pad(infoPrintSummary.name, getPrintFilename(), SUMMARY_NAME_LEN);
 }
 
-void preparePrintSummary(void)
+static void preparePrintSummary(void)
 {
   infoPrintSummary.time = infoPrinting.elapsedTime;
 
@@ -321,7 +320,7 @@ void preparePrintSummary(void)
 }
 
 // send print codes [0: start gcode, 1: end gcode 2: cancel gcode]
-void sendPrintCodes(uint8_t index)
+static void sendPrintCodes(uint8_t index)
 {
   PRINT_GCODES printcodes;
 
@@ -362,7 +361,7 @@ void clearInfoPrint(void)
   memset(&infoPrinting, 0, sizeof(PRINTING));
 }
 
-void completePrint(void)
+static void completePrint(void)
 {
   infoPrinting.cur = infoPrinting.size;  // always update the print progress to 100% even if the print terminated
   infoPrinting.progress = 100;           // set progress to 100% in case progress is controlled by slicer
@@ -457,6 +456,7 @@ bool startPrint(void)
           // disable print restore flag (one shot flag) for the next print.
           // The flag must always be explicitly re-enabled (e.g by powerFailedSetRestore function)
           powerFailedSetRestore(false);
+
           break;
         }
 
@@ -474,7 +474,6 @@ bool startPrint(void)
 
         powerFailedCreate(infoFile.path);  // if PLR feature is enabled, open a new PLR file
       }
-
       break;
 
     case FS_ONBOARD_MEDIA:
@@ -518,6 +517,7 @@ void endPrint(void)
   if (!infoPrinting.printing)
   {
     infoHost.status = HOST_STATUS_IDLE;
+
     return;
   }
 
@@ -529,7 +529,6 @@ void endPrint(void)
       // execute post print end tasks
       if (GET_BIT(infoSettings.send_gcodes, SEND_GCODES_END_PRINT))
         sendPrintCodes(1);
-
       break;
 
     case FS_ONBOARD_MEDIA_REMOTE:  // nothing to do
@@ -619,6 +618,7 @@ bool pausePrint(bool isPause, PAUSE_TYPE pauseType)
         TASK_LOOP_WHILE(isNotEmptyCmdQueue());  // wait for the communication to be clean
 
       static COORDINATE tmp;
+
       bool isCoorRelative = coorGetRelative();
       bool isExtrudeRelative = eGetRelative();
 
@@ -689,7 +689,6 @@ bool pausePrint(bool isPause, PAUSE_TYPE pauseType)
           if (isExtrudeRelative == true) mustStoreCmd("M83\n");
         }
       }
-
       break;
 
     case FS_ONBOARD_MEDIA:
@@ -698,7 +697,6 @@ bool pausePrint(bool isPause, PAUSE_TYPE pauseType)
         request_M25();   // pause
       else
         request_M24(0);  // resume
-
       break;
 
     case FS_REMOTE_HOST:
@@ -754,6 +752,7 @@ void setPrintAbort(void)
   if (!infoPrinting.printing)
   {
     infoHost.status = HOST_STATUS_IDLE;
+
     return;
   }
 

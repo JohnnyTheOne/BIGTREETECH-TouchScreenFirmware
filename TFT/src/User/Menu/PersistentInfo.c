@@ -7,7 +7,7 @@
 #define GLOBALICON_INTERVAL 2
 
 // check current menu to avoid display info
-bool temperatureStatusValid(void)
+static bool temperatureStatusValid(void)
 {
   if (infoSettings.persistent_info != 1) return false;
   if (infoHost.connected == false) return false;
@@ -70,7 +70,8 @@ void loopTemperatureStatus(void)
     }
   }
 
-  if (update) menuDrawTitle();
+  if (update)
+    menuDrawTitle();
 }
 
 // draw temperature status on title bar
@@ -78,7 +79,8 @@ int16_t drawTemperatureStatus(void)
 {
   int16_t x_offset = LCD_WIDTH - 10;
 
-  if (!temperatureStatusValid()) return x_offset;
+  if (!temperatureStatusValid())
+    return x_offset;
 
   uint16_t tmpIcon[4];  // 1-2 hotend, bed, chamber
   uint8_t tmpHeater[4];
